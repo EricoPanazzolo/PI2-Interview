@@ -1,0 +1,20 @@
+services:
+  legacy-app:
+    build: .
+    container_name: security_challenge_java
+    ports:
+      - "8080:8080"
+
+  buganizer-app:
+    build: .
+    container_name: buganizer_portal_java
+    ports:
+      - "8081:8081"
+    command: java -cp /app/bin com.customframework.apps.buganizer.Main
+
+  docs-app:
+    build: .
+    container_name: docs_portal_java
+    ports:
+      - "8082:8082"
+    command: java -cp /app/bin com.customframework.apps.docsportal.Main

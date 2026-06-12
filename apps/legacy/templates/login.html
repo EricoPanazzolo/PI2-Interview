@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Legacy Enterprise Portal - Login</title>
+    <link rel="stylesheet" href="/static/legacy.css">
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Login</h1>
+        <div id="error-msg" class="error"></div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.textContent = '';
+
+            try {
+                const response = await fetch('/api/v1/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.authenticated) {
+                    // Store token in localStorage (for demo purposes)
+                    localStorage.setItem('auth_token', data.token);
+                    if (data.role === 'administrator') {
+                        // Redirect admin to admin home
+                        window.location.href = '/admin_home';
+                    } else {
+                        // Redirect to profile page
+                        window.location.href = `/profile?name=${encodeURIComponent(username)}`;
+                    }
+                } else {
+                    errorMsg.textContent = data.error || 'Authentication failed';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

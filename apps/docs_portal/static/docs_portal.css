@@ -1,0 +1,173 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    color: #3c4043;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    background-color: #1a73e8;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dadce0;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.sidebar h3 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #5f6368;
+    margin-bottom: 15px;
+    letter-spacing: 0.8px;
+}
+
+.sidebar a {
+    display: block;
+    color: #3c4043;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sidebar a:hover {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+}
+
+.sidebar a.toc-h3 {
+    padding-left: 24px;
+    font-size: 13px;
+}
+
+.sidebar a.toc-h4 {
+    padding-left: 36px;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.main-content {
+    flex: 1;
+    padding: 40px 60px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    line-height: 1.6;
+}
+
+.main-content h1 {
+    font-size: 28px;
+    color: #202124;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+.main-content h2 {
+    font-size: 22px;
+    color: #202124;
+    border-bottom: 1px solid #dadce0;
+    padding-bottom: 8px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+    font-weight: 400;
+}
+
+.main-content h3 {
+    font-size: 16px;
+    color: #1a73e8;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.main-content p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #3c4043;
+}
+
+.main-content pre {
+    background-color: #f1f3f4;
+    padding: 16px;
+    border-radius: 6px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    border: 1px solid #dadce0;
+    overflow-x: auto;
+    margin-bottom: 16px;
+}
+
+.main-content code {
+    background-color: #f1f3f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    color: #202124;
+}
+
+.main-content ul {
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-left: 24px;
+}
+
+.main-content li {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #3c4043;
+}
+
+/* Alert styles matching blockquotes */
+.main-content blockquote {
+    margin: 20px 0;
+    padding: 16px;
+    border-left: 4px solid #1a73e8; /* Default blue for note */
+    background-color: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #3c4043;
+}
+
+/* Try to style caution if text contains CAUTION */
+.main-content blockquote:has(strong:contains("CAUTION")),
+.main-content blockquote:has(strong:contains("CRITICAL")) {
+    border-left-color: #d93025;
+    background-color: #fce8e6;
+}
+/* Note: :has and :contains might not be fully supported in all basic CSS engines,
+   but standard modern browsers support :has. If not, it falls back to blue border which is fine.
+   Actually, since we control the HTML generation, we could inject classes,
+   but blockquote with blue border is already good enough.
+*/
+
+.main-content pre code {
+    padding: 0;
+    background-color: transparent;
+}
+
+

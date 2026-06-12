@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Enterprise Framework SDK Documentation</title>
+    <link rel="stylesheet" href="/static/docs_portal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        Enterprise Framework SDK Documentation
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Table of Contents</h3>
+            <a class="toc-h2" href="#1-overview">1. Overview</a>
+            <a class="toc-h2" href="#2-core-architecture">2. Core Architecture</a>
+            <a class="toc-h2" href="#3-request-lifecycle">3. Request Lifecycle</a>
+
+            <a class="toc-h2" href="#4-api-reference">4. API Reference</a>
+            <a class="toc-h3" href="#41-request-class">4.1. Request Class</a>
+            <a class="toc-h3" href="#42-response-class">4.2. Response Class</a>
+            <a class="toc-h3" href="#43-router-class">4.3. Router Class</a>
+
+            <a class="toc-h2" href="#5-server-operations">5. Server Operations</a>
+            <a class="toc-h3" href="#51-starting-the-server">5.1. Starting the Server</a>
+            <a class="toc-h3" href="#52-error-handling">5.2. Error Handling</a>
+
+            <a class="toc-h2" href="#6-best-practices-performance">6. Best Practices &amp; Performance</a>
+            <a class="toc-h3" href="#61-connection-management">6.1. Connection Management</a>
+            <a class="toc-h3" href="#62-json-apis">6.2. JSON APIs</a>
+
+            <a class="toc-h2" href="#7-enterprise-security-hardening">7. Security &amp; Hardening</a>
+            <a class="toc-h3" href="#71-docker-container-hardening">7.1. Docker Hardening</a>
+            <a class="toc-h3" href="#72-production-deployment-guidelines">7.2. Production Guidelines</a>
+            <a class="toc-h3" href="#73-pre-routing-filters">7.3. Pre-routing Filters</a>
+            <a class="toc-h3" href="#74-dependency-vulnerability-auditing">7.4. Dependency Auditing</a>
+            <a class="toc-h3" href="#75-secure-logging-and-pii-protection">7.5. Secure Logging</a>
+
+            <a class="toc-h2" href="#8-authentication-session-management">8. Auth &amp; Sessions</a>
+            <a class="toc-h3" href="#81-auth-endpoint">8.1. Auth Endpoint</a>
+            <a class="toc-h3" href="#82-token-specification-validation">8.2. Token Spec</a>
+            <a class="toc-h3" href="#83-hardening-authentication">8.3. Hardening Auth</a>
+            <a class="toc-h3" href="#84-reference-resource-endpoints">8.4. Resource Endpoints</a>
+
+            <a class="toc-h2" href="#9-application-endpoints-api-directory">9. API Directory</a>
+            <a class="toc-h3" href="#91-core-application-endpoints-port-8080">9.1. Core Endpoints</a>
+            <a class="toc-h4" href="#html-pages">HTML Pages</a>
+            <a class="toc-h4" href="#api-endpoints">API Endpoints</a>
+            <a class="toc-h4" href="#static-resources">Static Resources</a>
+            <a class="toc-h2" href="#10-faq">10. FAQ</a>
+        </div>
+        <div class="main-content">
+            <h1>Enterprise Framework SDK Documentation</h1>
+            <p>Welcome to the official documentation for the <strong>Enterprise Framework SDK</strong>, a lightweight, high-performance HTTP framework designed for building secure and scalable microservices.</p>
+
+            <h2 id="1-overview">1. Overview</h2>
+            <p>The Enterprise Framework SDK is a minimalist web framework built on top of Java's native <code>com.sun.net.httpserver.HttpServer</code>. It is designed to provide developers with direct control over HTTP requests and responses while offering clean abstractions for routing and request parsing.</p>
+
+            <h2 id="2-core-architecture">2. Core Architecture</h2>
+            <p>The framework revolves around three main components:</p>
+            <ul>
+                <li><strong>Router</strong>: Dispatches incoming requests to the registered controllers based on HTTP method and path.</li>
+                <li><strong>Request</strong>: Encapsulates all incoming data, including headers, query parameters, and body content.</li>
+                <li><strong>Response</strong>: Allows controllers to construct HTTP responses with custom status codes, headers, and body content.</li>
+            </ul>
+
+            <h2 id="3-request-lifecycle">3. Request Lifecycle</h2>
+            <ol>
+                <li>A client sends an HTTP request.</li>
+                <li>The server receives the request and parses the URL path and query string.</li>
+                <li>The <code>Router</code> matches the method and path to a registered handler.</li>
+                <li>A <code>Request</code> object is instantiated and populated with headers, query parameters, and body.</li>
+                <li>The handler is executed with the <code>Request</code> object as its argument.</li>
+                <li>The handler returns a <code>Response</code> object (or a dict/str which is automatically converted).</li>
+                <li>The server sends the response back to the client.</li>
+            </ol>
+
+            <h2 id="4-api-reference">4. API Reference</h2>
+
+            <h3 id="41-request-class">4.1. Request Class</h3>
+            <p>Represents the incoming HTTP request. In Java, properties are accessed via getter methods.</p>
+            <h4>Getter Methods</h4>
+            <ul>
+                <li><code>getMethod()</code> (String): Returns the HTTP method (e.g., <code>"GET"</code>, <code>"POST"</code>) in uppercase.</li>
+                <li><code>getPath()</code> (String): Returns the request path (e.g., <code>"/profile"</code>).</li>
+                <li><code>getHeaders()</code> (Map&lt;String, String&gt;): Returns a map of incoming HTTP headers.</li>
+                <li><code>getQueryParams()</code> (Map&lt;String, String&gt;): Returns parsed query parameters.</li>
+                <li><code>getBody()</code> (String): Returns the raw body content. Useful for reading POST JSON payloads.</li>
+                <li><code>getCookies()</code> (Map&lt;String, String&gt;): Returns cookies parsed from the <code>Cookie</code> header.</li>
+            </ul>
+            <h4>Helper Methods</h4>
+            <ul>
+                <li><code>getHeader(String name)</code> / <code>getHeader(String name, String defaultValue)</code>: Case-insensitively looks up a header value.</li>
+            </ul>
+            <h4>Example</h4>
+            <pre><code>public static Response myHandler(Request request) {
+    // Case-insensitive header lookup
+    String userAgent = request.getHeader("User-Agent");
+    
+    // Accessing cookies
+    String sessionId = request.getCookies().get("session_id");
+    
+    // Accessing raw body and parsing JSON (using framework Utils)
+    Map&lt;String, String&gt; payload = Utils.parseJson(request.getBody());
+    String username = payload.get("username");
+    // ...
+    return new Response("OK");
+}</code></pre>
+
+            <h3 id="42-response-class">4.2. Response Class</h3>
+            <p>Represents the outgoing HTTP response.</p>
+            <h4>Constructors</h4>
+            <pre><code>new Response(String body)
+new Response(String body, int statusCode)
+new Response(String body, String contentType)
+new Response(String body, int statusCode, String contentType)</code></pre>
+            <h4>Methods</h4>
+            <ul>
+                <li><code>addHeader(String name, String value)</code>: Adds a custom header to the response. If the header already exists, it appends the value to support multi-valued headers (e.g., <code>Set-Cookie</code>).</li>
+                <li><code>enableContentSecurityPolicy()</code>: Configures a strict Content Security Policy (CSP) on the response header to prevent resources loading from untrusted sources. Note that this is not enabled by default, and enabling it may break some application functionalities.</li>
+                <li><code>disableCaching()</code>: Prevents browsers from caching the response by setting <code>Cache-Control</code>, <code>Pragma</code>, and <code>Expires</code> headers to disable cache.</li>
+                <li><code>enableHsts()</code>: Enables HTTP Strict Transport Security (HSTS) by injecting <code>Strict-Transport-Security</code> header, forcing HTTPS communication.</li>
+                <li><code>enableXssProtection()</code>: Enables legacy <code>X-XSS-Protection: 1; mode=block</code> header for compatibility with older browsers' built-in XSS filters.</li>
+                <li><code>setReferrerPolicy(String policy)</code>: Sets the <code>Referrer-Policy</code> header (e.g. <code>"strict-origin-when-cross-origin"</code>) to control how much referrer info is sent.</li>
+                <li><code>enableCors()</code> / <code>enableCors(String allowOrigin)</code>: Enables Cross-Origin Resource Sharing (CORS) by setting <code>Access-Control-Allow-Origin</code>, <code>Access-Control-Allow-Methods</code>, and <code>Access-Control-Allow-Headers</code>.</li>
+                <li><code>sanitize(String placeholder, String value)</code>: HTML-escapes the value and replaces occurrences of <code>{{placeholder}}</code> in the response body.</li>
+            </ul>
+            <h4>Example</h4>
+            <pre><code>public static Response myHandler(Request request) {
+    Response response = new Response("Welcome!");
+    response.addHeader("X-Custom-Header", "Value");
+    response.enableCors("*");
+    response.disableCaching();
+    return response;
+}</code></pre>
+
+            <h3 id="43-router-class">4.3. Router Class</h3>
+            <p>Manages routing table, handler dispatching, and middleware execution.</p>
+            <h4>Methods</h4>
+            <ul>
+                <li><code>use(Middleware middleware)</code>: Registers a global middleware that runs for all routes.</li>
+                <li><code>addRoute(String method, String path, Handler handler)</code>: Registers a handler for a specific HTTP method and path.</li>
+                <li><code>addRoute(String method, String path, Handler handler, List&lt;Middleware&gt; middlewares)</code>: Registers a handler with route-specific middlewares.</li>
+            </ul>
+            <h4>Middleware Specification</h4>
+            <p>Middlewares are implementations of the functional interface <code>Middleware</code>. They allow intercepting requests before they reach the main controller handler, or modifying responses after the controller executes. The signature is:</p>
+            <pre><code>@FunctionalInterface
+public interface Middleware {
+    Response handle(Request req, Handler next);
+}</code></pre>
+            <p>An implementation example using Java lambdas:</p>
+            <pre><code>Middleware myMiddleware = (req, next) -> {
+    // 1. Code to execute before the handler (e.g. check auth)
+    // If aborting, return a Response object directly:
+    // if (!authenticated) return new Response("Forbidden", 403);
+    
+    // 2. Call next.handle(req) to proceed
+    Response response = next.handle(req);
+    
+    // 3. Code to execute after the handler (e.g. add headers)
+    response.addHeader("X-Processed-By", "MyMiddleware");
+    return response;
+};</code></pre>
+            <h5>Key Concepts</h5>
+            <ul>
+                <li><strong>Short-circuiting:</strong> A middleware can abort the request flow early (e.g., if authentication fails) by returning a <code>Response</code> object directly without calling <code>next.handle(req)</code>.</li>
+                <li><strong>Execution Order:</strong> Global middlewares are registered via <code>router.use()</code> and run for all routes. Route-specific middlewares are passed to <code>router.addRoute()</code> and run only for that route. Middlewares execute in the order they are registered (global first, then route-specific).</li>
+                <li><strong>Request/Response Manipulation:</strong> Middlewares can modify the <code>Request</code> object before passing it to the handler, or modify the <code>Response</code> object before returning it to the client.</li>
+            </ul>
+
+            <h4>Reference Middlewares</h4>
+            <p>The framework includes several pre-built middlewares in the Legacy subsystem (<code>src/com/customframework/apps/legacy/Middlewares.java</code>) that can be used globally or on specific routes:</p>
+            <ul>
+                <li>
+                    <strong><code>adminCookieMiddleware</code></strong>: Handles access control for administrative endpoints (e.g., <code>/admin_home</code>, <code>/api/v1/users</code>, <code>/api/v1/settings</code>). It verifies the <code>role</code> and <code>auth_token</code> cookies. Non-admin users attempting to access these endpoints receive a <code>403 Forbidden</code> (for API routes) or are redirected to the <code>/login</code> page (for HTML routes).
+                </li>
+                <li>
+                    <strong><code>logMiddleware</code></strong>: A utility middleware for detailed access logging. It records the HTTP method and path, extracts and logs the <code>User-Agent</code> header, measures request latency, and logs the response status code and content type.
+                </li>
+                <li>
+                    <strong><code>globalSanitizerMiddleware</code></strong>: (Optional/Disabled by default) Automatically HTML-escapes all query parameters in the request URL to prevent injection attacks.
+                </li>
+                <li>
+                    <strong><code>securityHeadersMiddleware</code></strong>: Hardens response security by injecting standard defense headers:
+                    <ul>
+                        <li><code>X-XSS-Protection: 1; mode=block</code>.</li>
+                        <li><code>X-Content-Type-Options: nosniff</code>.</li>
+                        <li><code>X-Frame-Options: DENY</code>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong><code>referrerPolicyMiddleware</code></strong>: Sets the <code>Referrer-Policy</code> header to <code>strict-origin-when-cross-origin</code>.
+                </li>
+                <li>
+                    <strong><code>requestIdMiddleware</code></strong>: (Optional/Disabled by default) Generates a unique UUID for each incoming request, injects it into the request headers (as <code>X-Request-ID</code>), and adds it to the outgoing response headers.
+                </li>
+            </ul>
+
+            <h4>Example</h4>
+            <p>The following example demonstrates how to register global or route-specific middlewares in the application entry point:</p>
+            <pre><code>Router router = new Router();
+
+// 1. Register a global middleware (using lambda)
+router.use((req, next) -> {
+    Logger.log("Request: " + req.getMethod() + " " + req.getPath());
+    return next.handle(req);
+});
+
+// 2. Define a route-specific middleware
+Middleware authMiddleware = (req, next) -> {
+    if (req.getCookies().get("session_id") == null) {
+        return new Response("Login Required", 401);
+    }
+    return next.handle(req);
+};
+
+// Apply route-specific middleware to /profile
+router.addRoute("GET", "/profile", Controller::profileHandler, Collections.singletonList(authMiddleware));
+router.addRoute("GET", "/home", Controller::homeHandler); // only runs global middlewares</code></pre>
+
+            <h2 id="5-server-operations">5. Server Operations</h2>
+
+            <h3 id="51-starting-the-server">5.1. Starting the Server</h3>
+            <p>To start the server, use the <code>Server.runServer</code> function. It takes a port number and a configured <code>Router</code> instance.</p>
+            <pre><code>import com.customframework.core.Router;
+import com.customframework.core.Server;
+
+Router router = new Router();
+// Register routes...
+
+Server.runServer(8080, router);</code></pre>
+
+            <h3 id="52-error-handling">5.2. Error Handling</h3>
+            <ul>
+                <li><strong>404 Not Found</strong>: Automatically returned if no route matches the request.</li>
+                <li><strong>500 Internal Server Error</strong>: Automatically returned if an exception occurs during handler execution. The response will include the stack trace for debugging.</li>
+            </ul>
+
+            <h2 id="6-best-practices-performance">6. Best Practices &amp; Performance</h2>
+
+            <h3 id="61-connection-management">6.1. Connection Management</h3>
+            <p>For high-throughput services, ensure client connections are managed efficiently. While the SDK utilizes Java's built-in <code>HttpServer</code> which handles basic socket lifecycle, developers should ensure that client libraries use connection pooling where possible to reduce handshake overhead.</p>
+
+            <h3 id="62-json-apis">6.2. JSON APIs</h3>
+            <p>In the Java SDK, handlers must return a <code>Response</code> object. To serve JSON, serialize your data to a JSON string and return a <code>Response</code> with <code>application/json</code> content type:</p>
+            <pre><code>public static Response apiHandler(Request request) {
+    // Serialize data to a JSON string
+    String json = "{\"status\": \"success\", \"data\": [1, 2, 3]}";
+    return new Response(json, 200, "application/json");
+}</code></pre>
+
+            <h2 id="7-enterprise-security-hardening">7. Security &amp; Hardening</h2>
+
+            <h3 id="71-docker-container-hardening">7.1. Docker Hardening</h3>
+            <p>To ensure the microservices run securely in production, adhere to the following Docker hardening guidelines:</p>
+            <ul>
+                <li>
+                    <strong>Run as Non-Root User:</strong> Never run the application as <code>root</code> inside the container. Ensure the <code>Dockerfile</code> switches to a non-privileged user (e.g., <code>nobody</code> or a custom <code>appuser</code>).
+                    <pre><code>RUN groupadd -g 10001 appuser && useradd -u 10000 -g appuser appuser
+USER appuser</code></pre>
+                </li>
+                <li>
+                    <strong>Read-Only Filesystem:</strong> Mount the container filesystem as read-only to prevent unauthorized modifications at runtime. Use temporary writes in memory (<code>tmpfs</code>) if necessary.
+                    <pre><code>docker run --read-only --tmpfs /tmp:rw,noexec,nosuid my-app-image</code></pre>
+                </li>
+                <li>
+                    <strong>Linux Capabilities:</strong> Drop all default kernel capabilities and only add what is strictly necessary (usually none for simple web servers).
+                    <pre><code># docker-compose.yml example
+security_opt:
+  - no-new-privileges:true
+cap_drop:
+  - ALL</code></pre>
+                </li>
+            </ul>
+
+            <h3 id="72-production-deployment-guidelines">7.2. Production Guidelines</h3>
+            <ul>
+                <li><strong>Resource Constraints:</strong> Limit CPU and memory usage to prevent Denial of Service (DoS) attacks from exhausting host resources.</li>
+                <li><strong>Network Isolation:</strong> Use internal Docker networks to isolate applications. Only expose the necessary ports (e.g., via a reverse proxy like Nginx or an API Gateway).</li>
+            </ul>
+
+            <h3 id="73-pre-routing-filters">7.3. Pre-routing Filters</h3>
+            <p>When developing new features or endpoints, security must be a primary concern. If an endpoint deals with insecure, raw, or user-supplied requests, it is <strong>recommended</strong> to either utilize the existing security middlewares (such as <code>securityHeadersMiddleware</code> or <code>globalSanitizerMiddleware</code>) or create custom security middlewares to validate, sanitize, and harden the request before it reaches the controller handler.</p>
+            <p>Using middleware for security controls ensures consistent policy enforcement across routes and keeps controller logic focused on business requirements.</p>
+
+            <h3 id="74-dependency-vulnerability-auditing">7.4. Dependency Vulnerability Auditing</h3>
+            <p>To prevent the introduction of known vulnerabilities through third-party packages, all projects utilizing the SDK should regularly audit their dependencies. It is recommended to integrate automated scanning tools (such as <code>pip-audit</code> or Safety) into the CI/CD pipeline to detect and alert on deprecated or insecure library versions before deployment.</p>
+            <p>Always pin dependency versions in requirements files to ensure reproducible and secure builds.</p>
+
+            <h3 id="75-secure-logging-and-pii-protection">7.5. Secure Logging and PII Protection</h3>
+            <p>While detailed access logging (such as that provided by <code>log_middleware</code>) is essential for operational monitoring and security auditing, developers must ensure that sensitive information is never written to log files. This includes Personally Identifiable Information (PII), session tokens, passwords, and cryptographic keys.</p>
+            <p>Ensure that log sanitization filters are configured to mask or redact sensitive query parameters (e.g., <code>password</code>, <code>token</code>) and headers (e.g., <code>Authorization</code>, <code>Cookie</code>) before logs are persisted or sent to central log aggregation systems.</p>
+
+            <h2 id="8-authentication-session-management">8. Auth &amp; Sessions</h2>
+
+            <h3 id="81-auth-endpoint">8.1. Auth Endpoint</h3>
+            <p>The framework includes a reference implementation of an authentication endpoint in the Legacy subsystem, typically mapped to <code>/api/auth</code> or <code>/auth</code>.</p>
+            <ul>
+                <li><strong>Method:</strong> <code>POST</code></li>
+                <li><strong>Content-Type:</strong> <code>application/json</code></li>
+                <li><strong>Request Payload:</strong>
+                    <pre><code>{
+  "username": "admin",
+  "password": "YOUR_SECURE_PASSWORD"
+}</code></pre>
+                </li>
+                <li><strong>Response Payload (Success):</strong>
+                    <pre><code>{
+  "authenticated": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlBpIFNxdWFyZWQiLCJhZG1pbiI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.oBXW8_CY4NycsE7SxnkNoDzYrlLEzBhSAV_d1SlvrIU",
+  "role": "administrator"
+}</code></pre>
+                </li>
+            </ul>
+
+            <h3 id="82-token-specification-validation">8.2. Token Spec</h3>
+            <p>The current implementation uses a hardcoded mock JWT token.</p>
+            <blockquote>
+                <strong>WARNING:</strong> Hardcoded mock tokens are highly insecure and should only be used for local testing.
+            </blockquote>
+            <p>In production, these tokens must be validated on every request that accesses protected resources. The validation mechanism should inspect the <code>Authorization</code> header:</p>
+            <pre><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlBpIFNxdWFyZWQiLCJhZG1pbiI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.oBXW8_CY4NycsE7SxnkNoDzYrlLEzBhSAV_d1SlvrIU</code></pre>
+
+            <h3 id="83-hardening-authentication">8.3. Hardening Auth</h3>
+            <p>To transition from mock authentication to production-grade security:</p>
+            <ol>
+                <li><strong>Password Hashing:</strong> Never store or compare passwords in plain text. Use strong hashing algorithms like <code>bcrypt</code> or <code>Argon2id</code> with appropriate salt.</li>
+                <li><strong>JSON Web Tokens (JWT):</strong> Replace static tokens with cryptographically signed JWTs.
+                    <ul>
+                        <li>Implement token expiration (<code>exp</code> claim).</li>
+                        <li>Use asymmetric signing (RS256) where the auth service signs tokens with a private key, and microservices verify them using the public key.</li>
+                    </ul>
+                </li>
+                <li><strong>Token Storage:</strong> Recommend clients store tokens in <code>HttpOnly; Secure; SameSite=Strict</code> cookies to mitigate XSS and CSRF risks.</li>
+            </ol>
+
+            <h3 id="84-reference-resource-endpoints">8.4. Resource Endpoints</h3>
+            <p>The Legacy subsystem provides mock endpoints to simulate access to protected resources:</p>
+            <ul>
+                <li><strong>User Directory (<code>GET /api/v1/users</code>):</strong> Returns a list of active users and their roles in JSON format (requires administrator session).</li>
+                <li><strong>System Settings (<code>GET /api/v1/settings</code>):</strong> Returns global configuration settings in JSON format (requires administrator session).</li>
+            </ul>
+
+            <h2 id="9-application-endpoints-api-directory">9. API Directory</h2>
+            <p>This section documents all registered endpoints in the Legacy Enterprise Portal suite.</p>
+
+            <h3 id="91-core-application-endpoints-port-8080">9.1. Core Endpoints</h3>
+
+            <h4 id="html-pages">HTML Pages</h4>
+            <ul>
+                <li><strong>Root (<code>GET /</code>):</strong> Redirects to <code>/home</code>.</li>
+                <li><strong>Home (<code>GET /home</code>):</strong> Serves the main landing page.</li>
+                <li><strong>Login (<code>GET /login</code>):</strong> Serves the authentication entry point.</li>
+                <li><strong>Admin Home (<code>GET /admin_home</code>):</strong> Serves the Admin Dashboard (requires administrator session).</li>
+                <li><strong>User Profile (<code>GET /profile</code>):</strong> Displays user profile details. Accepts query parameter <code>name</code> (e.g., <code>/profile?name=admin</code>).</li>
+                <li><strong>Hello (<code>GET /hello</code>):</strong> Simple hello verification page.</li>
+                <li><strong>About (<code>GET /about</code>):</strong> Informational page about the portal.</li>
+                <li><strong>Contact (<code>GET /contact</code>):</strong> Contact information page.</li>
+            </ul>
+
+            <h4 id="api-endpoints">API Endpoints</h4>
+            <ul>
+                <li>
+                    <strong>Health Status (<code>GET /api/status</code>):</strong> Returns service health status.
+                    <ul>
+                        <li><em>Response Format:</em> JSON</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Authentication (<code>POST /api/v1/auth</code>):</strong> Authenticates users and issues tokens.
+                    <ul>
+                        <li><em>Request Format:</em> JSON (<code>{"username": "...", "password": "..."}</code>)</li>
+                        <li><em>Response Format:</em> JSON</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>User Directory (<code>GET /api/v1/users</code>):</strong> Returns a list of system users (requires administrator session).
+                    <ul>
+                        <li><em>Response Format:</em> JSON</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>System Settings (<code>GET /api/v1/settings</code>):</strong> Returns global settings (requires administrator session).
+                    <ul>
+                        <li><em>Response Format:</em> JSON</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4 id="static-resources">Static Resources</h4>
+            <ul>
+                <li><strong>Stylesheet (<code>GET /static/legacy.css</code>):</strong> Serves the CSS for legacy pages.</li>
+            </ul>
+
+            <h2 id="10-faq">10. Frequently Asked Questions (FAQ)</h2>
+            
+            <div class="faq-item" style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h5 style="margin-bottom: 5px; color: #333; font-size: 16px;">Q: How do I access JSON data sent in a POST request?</h5>
+                <p style="margin: 0; color: #555; line-height: 1.5;"><strong>A:</strong> The framework automatically parses JSON bodies if the client sends the <code>Content-Type: application/json</code> header. You can access the parsed dictionary directly using the <code>req.json</code> property on the <code>Request</code> object (e.g., <code>username = req.json.get("username")</code>).</p>
+            </div>
+
+            <div class="faq-item" style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h5 style="margin-bottom: 5px; color: #333; font-size: 16px;">Q: Does the router support dynamic path parameters like <code>/api/users/:id</code>?</h5>
+                <p style="margin: 0; color: #555; line-height: 1.5;"><strong>A:</strong> No. To keep the framework lightweight, the router only supports exact string matching for routes. If you need dynamic parameters, you must register a static prefix route (e.g., <code>/api/users/</code>) and parse the dynamic segments manually by splitting the <code>req.path</code> string in your handler.</p>
+            </div>
+
+            <div class="faq-item" style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h5 style="margin-bottom: 5px; color: #333; font-size: 16px;">Q: Can my controller handler return something other than a <code>Response</code> object (like a Map or String)?</h5>
+                <p style="margin: 0; color: #555; line-height: 1.5;"><strong>A:</strong> No. In the Java SDK, all controller handlers must implement the <code>Handler</code> interface and return a <code>Response</code> object directly. If you want to return JSON, you should serialize your data to a JSON string and construct a <code>Response</code> object with the <code>application/json</code> content type.</p>
+            </div>
+
+            <div class="faq-item" style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h5 style="margin-bottom: 5px; color: #333; font-size: 16px;">Q: Can I register multiple handlers for the exact same route (method + path)?</h5>
+                <p style="margin: 0; color: #555; line-height: 1.5;"><strong>A:</strong> No. The routing table maps the tuple <code>(method, path)</code> to a single handler. If you call <code>router.add_route()</code> multiple times for the same method and path, the last registered handler will overwrite any previous registrations.</p>
+            </div>
+
+            <div class="faq-item" style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h5 style="margin-bottom: 5px; color: #333; font-size: 16px;">Q: In what order do middlewares execute if I use both global and route-specific ones?</h5>
+                <p style="margin: 0; color: #555; line-height: 1.5;"><strong>A:</strong> Middlewares execute in the order they are registered. Global middlewares (registered via <code>router.use()</code>) run first, from the outer-most to the inner-most. After all global middlewares have processed the request, the route-specific middlewares (passed to <code>router.add_route()</code>) are executed in the order they appear in the list, finally passing the request to the controller handler.</p>
+            </div>
+
+            <div class="faq-item" style="margin-top: 20px; padding-bottom: 15px;">
+                <h5 style="margin-bottom: 5px; color: #333; font-size: 16px;">Q: How can a middleware abort a request early (e.g., if authentication fails)?</h5>
+                <p style="margin: 0; color: #555; line-height: 1.5;"><strong>A:</strong> To abort a request, the middleware should simply construct and return a <code>Response</code> object directly (e.g., <code>return Response("Unauthorized", status_code=401)</code>) instead of calling and returning <code>next_handler(request)</code>. This breaks the chain, preventing any subsequent middlewares or handlers from running.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
