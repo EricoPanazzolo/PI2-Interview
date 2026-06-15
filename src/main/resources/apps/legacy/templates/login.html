@@ -54,6 +54,7 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit" class="btn">Login</button>
+            <button type="button" id="guest-btn" class="btn" style="background-color: #6c757d; margin-top: 10px;">Login as Guest</button>
         </form>
     </div>
 
@@ -93,6 +94,10 @@
                 errorMsg.textContent = 'An error occurred. Please try again.';
                 console.error(err);
             }
+        });
+
+        document.getElementById('guest-btn').addEventListener('click', function() {
+            window.location.href = '/profile?name=guest';
         });
     </script>
 </body>
