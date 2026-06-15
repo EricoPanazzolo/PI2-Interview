@@ -176,7 +176,7 @@ public interface Middleware {
             </ul>
 
             <h4>Reference Middlewares</h4>
-            <p>The framework includes several pre-built middlewares in the Legacy subsystem (<code>src/com/customframework/apps/legacy/Middlewares.java</code>) that can be used globally or on specific routes:</p>
+            <p>The framework includes several pre-built middlewares in the Legacy subsystem (<code>src/com/customframework/apps/legacy/Middlewares.java</code>) that can be used globally or on specific routes. For security-specific middleware, see <a href="#73-pre-routing-filters">Section 7.3: Pre-routing Filters</a>.</p>
             <ul>
                 <li>
                     <strong><code>adminCookieMiddleware</code></strong>: Handles access control for administrative endpoints (e.g., <code>/admin_home</code>, <code>/api/v1/users</code>, <code>/api/v1/settings</code>). It verifies the <code>role</code> and <code>auth_token</code> cookies. Non-admin users attempting to access these endpoints receive a <code>403 Forbidden</code> (for API routes) or are redirected to the <code>/login</code> page (for HTML routes).

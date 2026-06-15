@@ -78,7 +78,7 @@ An external security researcher has reported a Reflected Cross-Site Scripting (X
 The application accepts user-controlled input and reflects it back to the client. If an attacker crafts a link with malicious JavaScript, it will execute in the context of the user&#x27;s session when visited.<br>
 <br>
 <h3>Impact</h3><br>
-If successfully exploited, this vulnerability could allow an attacker to access the sensitive session cookie (<code>auth_token</code>) using <code>document.cookie</code>, enabling them to hijack the administrator session.
+If successfully exploited, this vulnerability allows an attacker to execute arbitrary JavaScript in the victim's browser. An attacker could access the sensitive session cookie (<code>auth_token="..."</code> and <code>role="..."</code>) via <code>document.cookie</code> and exfiltrate it. With this token, the attacker can hijack the administrator session, gaining full access to administrative endpoints such as the User Directory (<code>/api/v1/users</code>) and System Settings (<code>/api/v1/settings</code>), leading to complete compromise of the application.
                 </div>
             </div>
 
