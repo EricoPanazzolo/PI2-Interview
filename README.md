@@ -13,9 +13,13 @@ installed.
     ```
 
 3.  The servers will start and listen on the following ports:
-    -   `http://localhost:8080`: Serves the Legacy Enterprise Portal, which is the core application under review.
-    -   `http://localhost:8081`: Serves the Issue Tracker portal, where you can view the reported issue.
-    -   `http://localhost:8082`: Serves the Docs Portal, which contains the proprietary framework SDK documentation.
+
+    -   `http://localhost:8080`: Serves the Legacy Enterprise Portal, which is
+        the core application under review.
+    -   `http://localhost:8081`: Serves the Issue Tracker portal, where you can
+        view the reported issue.
+    -   `http://localhost:8082`: Serves the Docs Portal, which contains the
+        proprietary framework SDK documentation.
 
 4.  To stop the server, press `Ctrl+C` or run:
 
@@ -30,8 +34,8 @@ installed.
 We have received an external security report indicating a vulnerability on the
 [Legacy Enterprise Portal](http://localhost:8080/).
 
-Please review the details in [Issue 1001](http://localhost:8081/) to understand and analyze
-the finding.
+Please review the details in [Issue 1001](http://localhost:8081/) to understand
+and analyze the finding.
 
 --------------------------------------------------------------------------------
 
@@ -51,7 +55,8 @@ Check the [Enterprise Framework SDK Documentation](http://localhost:8082/) here.
 
 Your objective is to analyze the reported vulnerability and design a project
 plan to remediate it across the entire enterprise (affecting approximately 3,000
-services managed by 250 development teams). For each team, you have the code location and the TL (team leader) ldap.
+services managed by 250 development teams). For each team, you have the code
+location and the TL (team leader) ldap.
 
 ### Tasks
 

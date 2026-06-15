@@ -64,6 +64,12 @@
                 <li><strong>Request</strong>: Encapsulates all incoming data, including headers, query parameters, and body content.</li>
                 <li><strong>Response</strong>: Allows controllers to construct HTTP responses with custom status codes, headers, and body content.</li>
             </ul>
+            <p>An application built with this framework typically consists of three main files:</p>
+            <ul>
+                <li><strong>Main</strong>: The entry point of the application, responsible for setting up the router, registering routes, applying global and route-specific middlewares, and starting the server.</li>
+                <li><strong>Controller</strong>: Contains the handler functions that process requests and return responses.</li>
+                <li><strong>Middleware</strong>: Contains filters that intercept requests and responses to perform cross-cutting concerns like authentication, logging, or security hardening.</li>
+            </ul>
 
             <h2 id="3-request-lifecycle">3. Request Lifecycle</h2>
             <ol>
@@ -184,9 +190,9 @@ public interface Middleware {
                 <li>
                     <strong><code>securityHeadersMiddleware</code></strong>: Hardens response security by injecting standard defense headers:
                     <ul>
-                        <li><code>X-XSS-Protection: 1; mode=block</code>.</li>
-                        <li><code>X-Content-Type-Options: nosniff</code>.</li>
-                        <li><code>X-Frame-Options: DENY</code>.</li>
+                        <li><code>X-XSS-Protection: 1; mode=block</code>: Instructs legacy browsers with built-in XSS filters to block the page if a reflected Cross-Site Scripting (XSS) attack is detected (largely ignored by modern browsers in favor of CSP).</li>
+                        <li><code>X-Content-Type-Options: nosniff</code>: Prevents the browser from MIME-sniffing the response, ensuring it adheres strictly to the declared content-type.</li>
+                        <li><code>X-Frame-Options: DENY</code>: Prevents the page from being embedded in frames or iframes, protecting against clickjacking.</li>
                     </ul>
                 </li>
                 <li>

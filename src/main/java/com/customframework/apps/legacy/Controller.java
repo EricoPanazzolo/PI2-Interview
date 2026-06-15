@@ -2,11 +2,8 @@ package com.customframework.apps.legacy;
 
 import com.customframework.core.*;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Controller {
@@ -15,7 +12,7 @@ public class Controller {
   public static final String GUEST_JWT_TOKEN =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imd1ZXN0Iiwicm9sZSI6Imd1ZXN0In0.signature";
 
-  private static final String APP_DIR = "/app/apps/legacy";
+  private static final String APP_DIR = "/app/src/main/resources/apps/legacy";
   private static final String TEMPLATE_DIR = APP_DIR + "/templates";
 
   private static String readTemplate(String filename) throws IOException {

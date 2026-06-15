@@ -7,10 +7,10 @@ COPY . /app/
 
 # Compile the Java project
 RUN mkdir -p /app/bin && \
-    javac -d /app/bin -sourcepath /app/src \
-    /app/src/com/customframework/apps/legacy/Main.java \
-    /app/src/com/customframework/apps/buganizer/Main.java \
-    /app/src/com/customframework/apps/docsportal/Main.java
+    javac -d /app/bin -sourcepath /app/src/main/java \
+    /app/src/main/java/com/customframework/apps/legacy/Main.java \
+    /app/src/main/java/com/customframework/apps/buganizer/Main.java \
+    /app/src/main/java/com/customframework/apps/docsportal/Main.java
 
 # Expose the ports
 EXPOSE 8080

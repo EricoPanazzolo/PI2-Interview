@@ -39,7 +39,7 @@ public class Main {
         Collections.singletonList(Middlewares.referrerPolicyMiddleware));
 
     // Register Static Files
-    String staticDir = "/app/apps/legacy/static";
+    String staticDir = "/app/src/main/resources/apps/legacy/static";
     router.addRoute(
         "GET", "/static/legacy.css", new StaticFileHandler(staticDir, "legacy.css", "text/css"));
 
