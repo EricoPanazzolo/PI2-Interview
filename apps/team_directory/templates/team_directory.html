@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Enterprise Team &amp; Ownership Directory</title>
+    <link rel="stylesheet" href="/static/team_directory.css">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto@5.0.8/index.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@5.0.8/index.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/material-icons@1.13.12/iconfont/material-icons.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="directory-header">
+        <div class="header-brand">
+            <i class="material-icons">corporate_fare</i>
+            <span>Enterprise Team &amp; Service Ownership Directory</span>
+        </div>
+        <nav class="header-nav">
+            <a href="http://localhost:8081" target="_blank" class="header-link"><i class="material-icons" style="font-size: 16px; vertical-align: middle;">format_list_bulleted</i> Buganizer Hotlist Queue (8081)</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section with Search & Lookup Tool -->
+    <div class="hero-section">
+        <h1 class="hero-title">Service &amp; Codebase Ownership Registry</h1>
+        <p class="hero-subtitle">
+            Query engineering teams, Tech Lead (TL) LDAPs, On-Call rosters, and code depot paths. Use this directory during security bug triage to assign incoming reports to the correct engineering owner.
+        </p>
+
+        <div class="search-controls">
+            <!-- Keyword Search -->
+            <div class="search-input-wrapper">
+                <i class="material-icons search-icon">search</i>
+                <input type="text" id="teamSearchInput" class="search-input" placeholder="Search by team name, LDAP, component, or keyword...">
+            </div>
+
+            <!-- Component Resolver -->
+            <div class="lookup-box">
+                <i class="material-icons" style="color: #1a73e8; font-size: 20px;">explore</i>
+                <input type="text" id="pathLookupInput" placeholder="Resolve path (e.g. /api/..., //depot/...)...">
+                <button type="button" id="pathLookupBtn" class="lookup-btn">
+                    <i class="material-icons" style="font-size: 16px;">search</i> Resolve
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="filter-pills">
+            <button class="pill active" data-filter="all">All Teams</button>
+            <button class="pill" data-filter="Core User & Account Infrastructure">Customer &amp; Account Infrastructure</button>
+            <button class="pill" data-filter="Information Security & Privacy">Security &amp; Privacy</button>
+            <button class="pill" data-filter="Network & Edge Infrastructure">Network &amp; Gateway</button>
+            <button class="pill" data-filter="Financial Engineering & Commerce">Payments &amp; Commerce</button>
+            <button class="pill" data-filter="Site Reliability Engineering">SRE &amp; Infrastructure</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="directory-container">
+        <!-- Ownership Resolver Banner -->
+        <div id="lookupBanner" class="lookup-result-banner">
+            <div class="banner-content">
+                <i class="material-icons banner-icon">verified_user</i>
+                <div class="banner-text">
+                    <h4 id="bannerTitle">Ownership Resolved</h4>
+                    <p id="bannerDetails"></p>
+                </div>
+            </div>
+            <button type="button" id="dismissBannerBtn" style="background: none; border: none; cursor: pointer; color: #5f6368;">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+
+        <!-- Teams Grid -->
+        <div class="teams-grid" id="teamsGrid">
+            {{team_cards_html}}
+        </div>
+    </main>
+
+    <script>
+        const searchInput = document.getElementById('teamSearchInput');
+        const filterPills = document.querySelectorAll('.filter-pills .pill');
+        const teamCards = document.querySelectorAll('.team-card');
+        const pathLookupInput = document.getElementById('pathLookupInput');
+        const pathLookupBtn = document.getElementById('pathLookupBtn');
+        const lookupBanner = document.getElementById('lookupBanner');
+        const bannerTitle = document.getElementById('bannerTitle');
+        const bannerDetails = document.getElementById('bannerDetails');
+        const dismissBannerBtn = document.getElementById('dismissBannerBtn');
+
+        let currentDepartment = 'all';
+
+        function filterTeams() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            teamCards.forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                const cardDept = card.getAttribute('data-department');
+
+                const matchesQuery = !query || cardText.includes(query);
+                const matchesDept = (currentDepartment === 'all') || (cardDept === currentDepartment);
+
+                if (matchesQuery && matchesDept) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterTeams);
+
+        filterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                filterPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                currentDepartment = pill.getAttribute('data-filter');
+                filterTeams();
+            });
+        });
+
+        // Path / Endpoint Lookup via API
+        async function handleLookup() {
+            const target = pathLookupInput.value.trim();
+            if (!target) return;
+
+            try {
+                const res = await fetch(`/api/ownership?path=${encodeURIComponent(target)}`);
+                const data = await res.json();
+
+                if (data.matched && data.team) {
+                    const team = data.team;
+                    bannerTitle.textContent = `Target "${target}" belongs to: ${team.name} (${team.tag})`;
+                    bannerDetails.innerHTML = `
+                        <strong>Primary On-Call (Assignee):</strong> <code>${team.primary_oncall_ldap}</code> (${team.primary_oncall_name}) &nbsp;|&nbsp;
+                        <strong>Tech Lead:</strong> <code>${team.tl_ldap}</code> (${team.tl_name}) &nbsp;|&nbsp;
+                        <strong>Alias:</strong> <code>${team.email}</code>
+                    `;
+                    lookupBanner.classList.add('show');
+
+                    // Highlight card
+                    teamCards.forEach(card => {
+                        card.classList.remove('highlight');
+                        if (card.getAttribute('data-id') === team.id) {
+                            card.classList.add('highlight');
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                } else {
+                    bannerTitle.textContent = `No direct match found for "${target}"`;
+                    bannerDetails.textContent = 'Please browse the directory below or try searching by depot directory prefix.';
+                    lookupBanner.classList.add('show');
+                }
+            } catch (err) {
+                console.error('Error resolving ownership:', err);
+            }
+        }
+
+        pathLookupBtn.addEventListener('click', handleLookup);
+        pathLookupInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLookup();
+        });
+
+        dismissBannerBtn.addEventListener('click', () => {
+            lookupBanner.classList.remove('show');
+        });
+    </script>
+</body>
+</html>

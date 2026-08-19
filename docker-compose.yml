@@ -1,0 +1,18 @@
+services:
+  buganizer-app:
+    build: .
+    container_name: buganizer_portal
+    ports:
+      - "8081:8081"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python -u -m apps.buganizer.main
+
+  team-directory-app:
+    build: .
+    container_name: team_directory_portal
+    ports:
+      - "8082:8082"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python -u -m apps.team_directory.main

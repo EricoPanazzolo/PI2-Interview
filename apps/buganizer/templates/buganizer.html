@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Buganizer - {{bug_number}}</title>
+    <link rel="stylesheet" href="/static/buganizer.css">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto@5.0.8/index.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@5.0.8/index.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/material-icons@1.13.12/iconfont/material-icons.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="tracker-header">
+        <div class="header-left">
+            <button class="menu-btn" title="Main menu"><i class="material-icons">menu</i></button>
+            <div class="logo">
+                <span class="tracker-text">Issue Tracker</span>
+            </div>
+            
+            <!-- Issue & Hotlist Tabs -->
+            <div class="issue-nav-tabs">
+                <a href="/hotlists/5829104" class="hotlist-tab-btn" title="View active incident queue">
+                    <i class="material-icons" style="font-size: 15px;">priority_high</i>
+                    <span>Triage Queue (5829104)</span>
+                </a>
+                <a href="/hotlists/7920155" class="hotlist-tab-btn" title="View enterprise vulnerability inventory">
+                    <i class="material-icons" style="font-size: 15px;">inventory_2</i>
+                    <span>Inventory (7920155)</span>
+                </a>
+                <a href="/issues/543338174" class="issue-tab {{tab_543_class}}">
+                    <span class="issue-badge">b/543338174</span>
+                    <span class="tab-title">Payments Webhook Auth</span>
+                </a>
+                <a href="/issues/618294710" class="issue-tab {{tab_618_class}}">
+                    <span class="issue-badge">b/618294710</span>
+                    <span class="tab-title">Customer PII Leakage</span>
+                </a>
+            </div>
+        </div>
+        <div class="search-bar">
+            <form method="GET" action="/hotlists/7920155" style="display: flex; width: 100%; align-items: center;">
+                <i class="material-icons search-icon">search</i>
+                <input type="text" name="q" placeholder="Search syntax: status:assigned assignee:maya_l priority:p1..." value="id:{{bug_id}}" autocomplete="off">
+            </form>
+        </div>
+        <div class="header-right">
+            <a href="http://localhost:8082" target="_blank" class="nav-tool-link" title="Open Team Directory to find service owners">
+                <i class="material-icons" style="font-size: 16px;">corporate_fare</i> Team &amp; Ownership Directory (8082)
+            </a>
+            <div class="user-avatar" title="Logged in as security-triage@company.com">SE</div>
+        </div>
+    </header>
+
+    <!-- Issue Action Toolbar -->
+    <div class="action-toolbar">
+        <button class="action-btn primary" onclick="document.getElementById('commentInput').focus()"><i class="material-icons">comment</i> Comment / Reply</button>
+        <button class="action-btn" onclick="document.getElementById('assigneeInput').focus()"><i class="material-icons">person_add</i> Assign</button>
+        <button class="action-btn" onclick="copyBugLink()"><i class="material-icons">link</i> Copy Link</button>
+        <button class="action-btn" onclick="window.location.reload()"><i class="material-icons">refresh</i> Refresh</button>
+        <div class="toolbar-separator"></div>
+        <span class="component-path">Component: <strong>{{component}}</strong></span>
+    </div>
+    
+    <!-- Main Bug View -->
+    <div class="tracker-container">
+        <!-- Left Content Area -->
+        <main class="main-content">
+            <div class="bug-header-card">
+                <div class="bug-id-row">
+                    <span class="bug-id-label">{{bug_number}}</span>
+                    <span class="bug-type-badge"><i class="material-icons">security</i> VULNERABILITY</span>
+                    <span class="status-chip">{{status}}</span>
+                    <span class="hotlist-chip"><i class="material-icons" style="font-size: 11px;">label</i> P1-Security-Incident</span>
+                    <span class="hotlist-chip"><i class="material-icons" style="font-size: 11px;">label</i> Internal-Audit-2026</span>
+                </div>
+                <h1 class="bug-title">{{title}}</h1>
+            </div>
+            
+            <!-- Description Card -->
+            <div class="bug-card description-card">
+                <div class="card-header">
+                    <div class="reporter-info">
+                        <div class="avatar">JD</div>
+                        <div class="reporter-details">
+                            <span class="reporter-name"><strong>{{reporter}}</strong></span>
+                            <span class="report-date">reported on {{created_date}}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <i class="material-icons" title="Reply">reply</i>
+                        <i class="material-icons" title="More options">more_vert</i>
+                    </div>
+                </div>
+                <div class="card-body description-content">
+                    <h3>Executive Summary</h3>
+                    <p>{{desc_summary}}</p>
+
+                    <h3>Affected Asset &amp; Endpoint</h3>
+                    <ul>
+                        <li><strong>API Endpoint:</strong> <code>{{desc_endpoint}}</code></li>
+                        <li><strong>Code Location:</strong> <code>{{desc_path}}</code></li>
+                    </ul>
+
+                    <h3>Vulnerability Findings &amp; Impacted Scope</h3>
+                    <ul>
+                        {{desc_leaked_fields}}
+                    </ul>
+
+                    <h3>Reproduction Request</h3>
+                    <pre><code>{{desc_repro}}</code></pre>
+
+                    <h3>Sample Response / Verification Payload</h3>
+                    <pre><code>{{desc_sample_resp}}</code></pre>
+
+                    <h3>Business &amp; Security Impact</h3>
+                    <p>{{desc_impact}}</p>
+
+                    <h3>Proposed Remediation SLO</h3>
+                    <p>{{desc_slo}}</p>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section" id="commentsContainer">
+                {{comments_html}}
+            </div>
+
+            <!-- Comment Composer -->
+            <div class="comment-composer">
+                <div class="composer-title">
+                    <i class="material-icons" style="color: #1a73e8; font-size: 18px;">rate_review</i>
+                    <span>Add Triage Response, Follow-Up Ping, or Engineering Handover Note</span>
+                </div>
+                <form id="commentForm">
+                    <textarea id="commentInput" class="comment-textarea" placeholder="Write your triage reply, follow-up ping to the assignee, or engineering handover note..." required></textarea>
+                    <div class="composer-controls">
+                        <div class="composer-meta">
+                            <label style="font-size: 12px; color: #5f6368;">Author:</label>
+                            <input type="text" id="senderInput" value="security-triage@company.com" style="width: 220px;">
+                        </div>
+                        <button type="submit" class="action-btn primary">
+                            <i class="material-icons">send</i> Post Comment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Right Sidebar (Buganizer Attributes) -->
+        <aside class="sidebar">
+            <!-- Attributes Section -->
+            <div class="sidebar-section">
+                <div class="section-title">Issue Attributes</div>
+                <table class="attributes-table">
+                    <tr>
+                        <td class="attr-label">Status</td>
+                        <td class="attr-value">
+                            <div class="select-mock status-active">
+                                <span id="statusText">{{status}}</span> <i class="material-icons">arrow_drop_down</i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Priority</td>
+                        <td class="attr-value">
+                            <div class="select-mock priority-p1">
+                                <span>{{priority}}</span> <i class="material-icons">arrow_drop_down</i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Severity</td>
+                        <td class="attr-value">
+                            <div class="select-mock severity-s1">
+                                <span>{{severity}}</span> <i class="material-icons">arrow_drop_down</i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Type</td>
+                        <td class="attr-value">{{type}}</td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Due Date (SLO)</td>
+                        <td class="attr-value">
+                            <span class="due-date-badge {{due_date_class}}"><i class="material-icons" style="font-size: 14px;">event</i> {{due_date}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Ownership Section -->
+            <div class="sidebar-section">
+                <div class="section-title">Ownership &amp; People</div>
+                <table class="attributes-table">
+                    <tr>
+                        <td class="attr-label">Assignee</td>
+                        <td class="attr-value">
+                            <form id="assignForm" class="assignee-widget">
+                                <input type="text" id="assigneeInput" class="assignee-input" value="{{assignee_ldap}}">
+                                <button type="submit" class="assign-btn">Assign</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Reporter</td>
+                        <td class="attr-value">
+                            <span class="user-link">{{reporter}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Verifier</td>
+                        <td class="attr-value">
+                            <span style="color: #5f6368;">security-triage@company.com</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">CCs</td>
+                        <td class="attr-value">
+                            <span style="color: #5f6368; font-size: 12px;">seceng-review@company.com</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Ownership Helper Directory Callout -->
+            <div class="sidebar-help-card">
+                <h4><i class="material-icons" style="font-size: 16px;">corporate_fare</i> Service Ownership Registry</h4>
+                <p>Need to check who owns an API endpoint, code path, or on-call rotation? Use the internal Team Directory service to look up LDAP rosters.</p>
+                <a href="http://localhost:8082" target="_blank">Open Team &amp; Ownership Directory (8082) &rarr;</a>
+            </div>
+
+            <!-- Metadata Section -->
+            <div class="sidebar-section" style="margin-top: 20px;">
+                <div class="section-title">Timeline</div>
+                <table class="attributes-table">
+                    <tr>
+                        <td class="attr-label">Created</td>
+                        <td class="attr-value">{{created_date}}</td>
+                    </tr>
+                    <tr>
+                        <td class="attr-label">Modified</td>
+                        <td class="attr-value" id="lastModifiedDate">{{modified_date}}</td>
+                    </tr>
+                </table>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-msg"></div>
+
+    <script>
+        const currentBugId = "{{bug_id}}";
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        function copyBugLink() {
+            navigator.clipboard.writeText(window.location.href);
+            showToast(`Copied bug link (b/${currentBugId}) to clipboard!`);
+        }
+
+        // Comment Submission
+        document.getElementById('commentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const text = document.getElementById('commentInput').value.trim();
+            const sender = document.getElementById('senderInput').value.trim();
+
+            if (!text) return;
+
+            try {
+                const res = await fetch(`/api/issues/${currentBugId}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        author: sender,
+                        text: text,
+                        is_internal: true
+                    })
+                });
+
+                if (res.ok) {
+                    showToast('Comment posted successfully!');
+                    document.getElementById('commentInput').value = '';
+                    setTimeout(() => { window.location.reload(); }, 600);
+                } else {
+                    showToast('Error posting comment.');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error posting comment.');
+            }
+        });
+
+        // Assignee Update
+        document.getElementById('assignForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const newLdap = document.getElementById('assigneeInput').value.trim();
+            if (!newLdap) return;
+
+            try {
+                const res = await fetch(`/api/issues/${currentBugId}/assign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assignee_ldap: newLdap })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(`Bug assigned to @${data.assignee_ldap}`);
+                    document.getElementById('statusText').textContent = 'Assigned';
+                } else {
+                    showToast('Error assigning bug: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error assigning bug.');
+            }
+        });
+    </script>
+</body>
+</html>
