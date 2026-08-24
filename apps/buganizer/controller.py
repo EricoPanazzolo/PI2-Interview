@@ -1901,6 +1901,9 @@ def match_atomic_predicate(issue: dict, token: str) -> bool:
       return issue["severity"].upper() == target_s
 
     elif k in ("component", "comp"):
+      raw_val = parts[1].strip()
+      if not (raw_val.startswith('"') and raw_val.endswith('"') and len(raw_val) > 2):
+        return False
       comp = issue.get("component", "").lower()
       if v == "iam":
         return (
@@ -1983,15 +1986,15 @@ def issue_matches_query(issue: dict, query_str: str) -> bool:
       elif op_upper in ("NOT", "!"):
         raw_tokens.append(("OP", "NOT"))
     elif kv:
-      raw_tokens.append(("LITERAL", kv))
+      raw_tokens.append(("KV", kv))
     elif phrase:
-      raw_tokens.append(("LITERAL", phrase.strip('"')))
+      raw_tokens.append(("QUOTED_STRING", phrase.strip('"')))
     elif word:
       w_upper = word.upper()
       if w_upper in ("AND", "OR", "NOT"):
         raw_tokens.append(("OP", w_upper))
       else:
-        raw_tokens.append(("LITERAL", word))
+        raw_tokens.append(("UNQUOTED_WORD", word))
 
   if not raw_tokens:
     return True
@@ -2001,11 +2004,11 @@ def issue_matches_query(issue: dict, query_str: str) -> bool:
   for i, t in enumerate(raw_tokens):
     if i > 0:
       prev = raw_tokens[i - 1]
-      prev_is_val = prev[0] == "LITERAL" or (
+      prev_is_val = prev[0] in ("KV", "QUOTED_STRING", "UNQUOTED_WORD") or (
           prev[0] == "PAREN" and prev[1] == ")"
       )
       curr_is_val = (
-          t[0] == "LITERAL"
+          t[0] in ("KV", "QUOTED_STRING", "UNQUOTED_WORD")
           or (t[0] == "PAREN" and t[1] == "(")
           or (t[0] == "OP" and t[1] == "NOT")
       )
@@ -2019,8 +2022,8 @@ def issue_matches_query(issue: dict, query_str: str) -> bool:
   op_stack = []
 
   for t_type, t_val in tokens:
-    if t_type == "LITERAL":
-      output_queue.append(("LITERAL", t_val))
+    if t_type in ("KV", "QUOTED_STRING", "UNQUOTED_WORD"):
+      output_queue.append((t_type, t_val))
     elif t_type == "OP":
       while (
           op_stack
@@ -2046,8 +2049,13 @@ def issue_matches_query(issue: dict, query_str: str) -> bool:
   # Evaluate Postfix (RPN)
   eval_stack = []
   for item_type, item_val in output_queue:
-    if item_type == "LITERAL":
+    if item_type == "KV":
       eval_stack.append(match_atomic_predicate(issue, item_val))
+    elif item_type == "QUOTED_STRING":
+      search_blob = get_issue_searchable_text(issue)
+      eval_stack.append(item_val.lower() in search_blob)
+    elif item_type == "UNQUOTED_WORD":
+      eval_stack.append(False)
     elif item_type == "OP":
       if item_val == "NOT":
         val = eval_stack.pop() if eval_stack else False

@@ -7,7 +7,7 @@ To run the application suite locally, you must have Docker and Docker Compose in
 1. **Navigate to the challenge directory:**
    
    ```bash
-   cd <path-to-folder>/bug-management-interview
+   cd <path-to-the-code-location>
    ```
 
 2. **Build and spin up the containers:**
@@ -65,7 +65,7 @@ Contains the full repository of vulnerabilities, incidents, and bugs across ente
 - `assignee:<ldap|none|unassigned>`
 - `priority:<p0|p1|p2|p3>` or `p:<p1>`
 - `severity:<s0|s1|s2|s3>` or `s:<s1>`
-- `component:<name>` (e.g. `component:payments`, `component:iam`, `component:privacy`)
+- `component:"<name>"` (e.g. `component:"payments"`, `component:"iam"`, `component:"privacy"`)
 - Substring keyword terms (e.g. `webhook`, `PII`, `JWT`, `SSN`, `CORS`, `Docker`)
 
 ---
@@ -74,15 +74,15 @@ Contains the full repository of vulnerabilities, incidents, and bugs across ente
 
 As a Security Triage Engineer, your evaluation consists of three core tasks:
 
-1. **Task 1 (Incident Follow-Up & Traction Maintenance):**
+1. **Task 1:**
    - Review bug `b/543338174`.
    - Perform all appropriate follow-up actions (posting a status ping, checking if blocked, proposing chat outreach and escalation if needed).
 
-2. **Task 2 (Incident Ownership Routing & Handover):**
+2. **Task 2:**
    - Review bug `b/618294710`.
    - Use the **Team & Ownership Directory** (`http://localhost:8082`) to resolve the owning team and Primary On-Call.
 
-3. **Task 3 (Hotlist Querying & Inventory Analysis):**
+3. **Task 3:**
    - Navigate to the **Vulnerability Inventory & Backlog (`hotlist:7920155`)**.
    - Complete the **5 Hotlist Querying Challenges** detailed in **Section 4**.
 
@@ -94,7 +94,8 @@ As a Security Triage Engineer, your evaluation consists of three core tasks:
 
 Navigate to the **Enterprise Vulnerability Inventory & Backlog (`hotlist:7920155`)** at `http://localhost:8081/hotlists/7920155`. Execute the following **five search queries** to analyze the enterprise backlog and formulate your triage observations:
 
-**Challenge 1: Unassigned Active Triage Queue (Triage Routing & Intake Backlog)**
+
+**Challenge 1: Unassigned Active Triage Queue**
 
 - **Scenario:** As the triage lead, you need to identify all active, unresolved security findings across the organization that currently lack an assigned engineer and require immediate ownership routing.
 - **Candidate Tasks in Report:**
@@ -103,7 +104,7 @@ Navigate to the **Enterprise Vulnerability Inventory & Backlog (`hotlist:7920155
 
   2. Cross-reference each unassigned bug with the **Team & Ownership Directory** (`http://localhost:8082`) to specify the rightful primary on-call engineer and team to which each should be assigned.
 
-**Challenge 2: Critical & High-Priority Active Incidents (P0/P1 SLA & Blocker Tracking)**
+**Challenge 2: Critical & High-Priority Active Incidents**
 
 - **Scenario:** Perform an analysis of all critical (`P0`) and high-priority (`P1`) vulnerabilities currently in an active state to track remediation progress against SLO deadlines.
 - **Candidate Tasks in Report:**
@@ -114,9 +115,9 @@ Navigate to the **Enterprise Vulnerability Inventory & Backlog (`hotlist:7920155
 
   3. Identify the bugs that are approaching their SLO deadlines, and execute the necessary actions for the SLO to be fulfilled.
 
-**Challenge 3: Identity, Authentication & Session Security Audit (IAM Domain Investigation)**
+**Challenge 3: Identity, Authentication & Session Security Audit**
 
-- **Scenario:** The Identity & Access Management (IAM) team is conducting a domain-wide security review. Identify all vulnerabilities affecting authentication services, token validation, SSO session management, and credential reset flows.
+- **Scenario:** The Identity & Access Management (IAM) team is conducting a component-wide security review. Identify all vulnerabilities affecting authentication for the IAM component.
 
 - **Candidate Tasks in Report:**
 
@@ -124,18 +125,9 @@ Navigate to the **Enterprise Vulnerability Inventory & Backlog (`hotlist:7920155
 
   2. Confirm whether the historical P0 SSO session fixation vulnerability has been successfully verified and closed.
 
-**Challenge 4: Secrets, Credential Leakage & Infrastructure Exposure (Logical Boolean Investigation)**
+**Challenge 4: Data Privacy Governance & Regulatory Compliance**
 
-- **Scenario:** Security Assurance is auditing credentials hygiene and container isolation. Find all active tickets relating to exposed API keys or docker sockets.
-
-- **Candidate Tasks in Report:**
-  
-  1. Record the exact query used and list the bugs (`b/...`). 
-  2. List the affected endpoints or code location.
-
-**Challenge 5: Data Privacy Governance & Regulatory Compliance (Cross-Domain Logical Filtering)**
-
-- **Scenario:** Ahead of an upcoming regulatory audit, compile an inventory of all issues (open and already closed) concerning client Personally Identifiable Information (PII) leakage OR GDPR compliance workflows (`GDPR` / `PII`) across both `Data Privacy Governance` and `Privacy & Data Protection` components, while excluding the `API Gateway & Edge`.
+- **Scenario:** Ahead of an upcoming regulatory audit, compile an inventory of all issues (open and already closed) concerning client Personally Identifiable Information (PII) leakage OR GDPR compliance workflows (`GDPR` / `PII`) across both `Data Privacy Governance` and `Privacy & Data Protection` components, while excluding the `Audit Logging` sub-component.
 
 - **Candidate Tasks in Report:**
   

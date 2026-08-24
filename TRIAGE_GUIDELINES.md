@@ -4,7 +4,7 @@
 
 As a Security Triage Engineer, your primary role is to actively manage and drive security bugs from initial intake to successful resolution. Your day-to-day responsibilities focus on:
 
-- **Finding the Correct Assignee (Re-mapping):** When a bug is unassigned or mapped incorrectly, identify the rightful owning team and reassign it to the correct person.
+- **Finding the Correct Assignee (Re-mapping):** When a bug is unassigned or mapped incorrectly, identify the rightful owning team and re-assign it to the correct person.
 - **Pinging Bugs & Assignees:** Proactively comment on tickets to check status, remind owners of upcoming deadlines, and keep bugs active.
 - **Reaching Out via Chat:** If the assignee remains silent for several days after an initial bug ping, reach out via internal team chat channels to confirm they are aware of the issue.
 - **Maintaining Bug Traction & Progress:** Ensure the bug does not get buried in a team's backlog or forgotten after initial acknowledgment.
@@ -75,25 +75,26 @@ Issue Tracker supports structured search queries and rich boolean logic in the s
 - **Priority & Severity Filters:**
   - `priority:p0`, `priority:p1`, `priority:p2`, `priority:p3` (or alias `p:p1`, `p:0`).
   - `severity:s0`, `severity:s1`, `severity:s2`, `severity:s3` (or alias `s:s1`, `s:0`).
-- **Component Filters:**
-  - `component:payments` - Financial & Payments Security domain.
-  - `component:iam` - Identity & Access Management domain.
-  - `component:privacy` - Customer Data & Privacy domain.
-  - `component:infra` - Cloud Infrastructure & Container Security domain.
-  - `component:gateway` - API Gateway & Edge Infrastructure domain.
-- **Keywords & Exact Phrases:**
-  - Exact quoted phrases: `"API key"`, `"Docker socket"`, `"none" Algorithm`.
-  - Free-text terms: `webhook`, `SSN`, `JWT`, `Docker`, `CORS`, `signature`, `sandbox`.
+- **Component Filters (Double Quotes Required):**
+  - Component filter values must always be enclosed in double quotes (for broad names, full paths, or sub-paths):
+  - `component:"payments"` - Financial & Payments Security domain.
+  - `component:"iam"` - Identity & Access Management domain.
+  - `component:"privacy"` - Customer Data & Privacy domain.
+  - `component:"infra"` - Cloud Infrastructure & Container Security domain.
+  - `component:"gateway"` - API Gateway & Edge Infrastructure domain.
+  - Full Component Paths: You can also filter by the full component name or any sub-path in quotes, e.g., `component:"Security > Privacy & Data Protection > Customer Data API"` or `component:"Data Privacy Governance"`.
+- **Keywords & Exact Phrases (Double Quotes Required):**
+  - All free-text keywords, phrases, or string search terms must be enclosed in double quotes (e.g. `"PII"`, `"GDPR"`, `"API key"`, `"Docker socket"`, `"none" Algorithm`, `"webhook"`, `"SSN"`, `"JWT"`, `"Docker"`, `"CORS"`). Unquoted bare strings will not match.
 
 ### B. Logical Operations (Boolean Algebra)
 The search engine supports logical operators to formulate multi-dimensional queries:
 
 | Operator | Syntax Variants | Description | Example |
 |---|---|---|---|
-| **AND (Conjunction)** | `AND`, `&&`, `&`, or whitespace | All specified conditions must be satisfied. Consecutive tokens implicitly use `AND`. | `status:open AND priority:p1`<br>`status:open component:iam` |
-| **OR (Disjunction)** | `OR`, `\|\|`, `\|` | At least one of the conditions must be satisfied. | `"API key" OR "Docker socket"`<br>`component:iam OR component:privacy` |
-| **NOT (Negation)** | `NOT`, `!` | Excludes bugs matching the following condition. | `status:open NOT component:iam`<br>`status:open !priority:p3` |
-| **Grouping (Parentheses)** | `( ... )` | Controls evaluation precedence when mixing `AND` and `OR`. | `status:open AND (priority:p0 OR priority:p1)`<br>`status:open ("API key" OR docker)` |
+| **AND (Conjunction)** | `AND`, `&&`, `&`, or whitespace | All specified conditions must be satisfied. Consecutive tokens implicitly use `AND`. | `status:open AND priority:p1`<br>`status:open component:"iam"` |
+| **OR (Disjunction)** | `OR`, `\|\|`, `\|` | At least one of the conditions must be satisfied. | `"API key" OR "Docker socket"`<br>`component:"iam" OR component:"privacy"` |
+| **NOT (Negation)** | `NOT`, `!` | Excludes bugs matching the following condition. | `status:open NOT component:"iam"`<br>`status:open !priority:p3` |
+| **Grouping (Parentheses)** | `( ... )` | Controls evaluation precedence when mixing `AND` and `OR`. | `status:open AND (priority:p0 OR priority:p1)`<br>`status:open ("API key" OR "docker")` |
 
 ### C. Operator Precedence
 Expressions are evaluated following standard boolean algebra precedence rules:
@@ -119,14 +120,14 @@ Expressions are evaluated following standard boolean algebra precedence rules:
   (component:"Billing" OR component:"Financial & Payments Security")
   ```
 
-- **Unassigned Intake Queue Across Core Security Domains:**
+- **Unassigned Intake Queue Across Core Security Components:**
   ```sql
-  status:open assignee:none (component:iam OR component:privacy OR component:payments)
+  status:open assignee:none (component:"iam" OR component:"privacy" OR component:"payments")
   ```
 
 - **Searching for specific strings/words:**
   ```sql
-  ("Primary On-Call" OR "PR #" OR microservices)
+  ("Primary On-Call" OR "PR #" OR "microservices")
   ```
 
 - **Tracking Blocked High-Impact Vulnerabilities:**
@@ -136,7 +137,7 @@ Expressions are evaluated following standard boolean algebra precedence rules:
 
 - **Domain-Wide IAM & Authentication Security Audit:**
   ```sql
-  component:iam (JWT OR OAuth OR SSO OR session)
+  component:"iam" ("JWT" OR "OAuth" OR "SSO" OR "session")
   ```
 
 ---
@@ -144,12 +145,12 @@ Expressions are evaluated following standard boolean algebra precedence rules:
 ## 7. Communication & Ping Examples
 
 ### Example A: Handover Note (Re-routing a Mismapped Bug)
-> *"Reassigning to **@lucas_m** (Primary On-Call for Customer Account & Data Services) based on the Service Ownership Directory. Could you please confirm if you are the correct person to oversee this issue and if you have context on what is going on with `/api/v2/clients/details`? Target SLO due date: within 48h (per ticket SLO). Please let us know if you need assistance reproducing or if this belongs to someone else on the team."*
+> *"Reassigning to **@alex_c** (Primary On-Call for User Notification Services) based on the Service Ownership Directory. Could you please confirm if you are the correct person to oversee this issue and if you have context on what is happening with `/api/v1/notifications/push`? Target SLO due date: within 48h (per ticket SLO). Please let us know if you need assistance reproducing or if this belongs to someone else on the team."*
 
 ### Example B: Follow-Up Ping (Dormant Bug Approaching SLO Deadline)
-> *"Hi **@maya_l**, following up on this P1 finding regarding missing HMAC signature verification on `/api/v1/payments/webhook`. The SLO due date is approaching (2 days remaining per ticket deadline). Could you share a quick status update on the hotfix PR? Please let us know if you are blocked or need additional reproduction details from triage."*
+> *"Hi **@jordan_t**, following up on this P1 finding regarding missing input sanitization on `/api/v1/media/upload`. The SLO due date is approaching (2 days remaining per ticket deadline). Could you share a quick status update on the hotfix PR? Please let us know if you are blocked or need additional reproduction details from triage."*
 
 ### Example C: Chat Check-In (After Days Without Response)
-> *"Hi @maya_l / #payments-eng-oncall, checking in on P1 bug `b/543338174` (Payments Webhook Auth). We wanted to confirm you're aware of the upcoming SLO deadline and see if you need any support from the security triage team."*
+> *"Hi @jordan_t / #media-eng-oncall, checking in on P1 bug `b/881920391` (Media Upload Sanitization). We wanted to confirm you're aware of the upcoming SLO deadline and see if you need any support from the security triage team."*
 
 ---

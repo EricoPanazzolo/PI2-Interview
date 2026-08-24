@@ -132,6 +132,7 @@
                     const team = data.team;
                     bannerTitle.textContent = `Target "${target}" belongs to: ${team.name} (${team.tag})`;
                     bannerDetails.innerHTML = `
+                        <strong>Broad Component:</strong> <code>component:&quot;${team.broad_component || ''}&quot;</code> &nbsp;|&nbsp;
                         <strong>Primary On-Call (Assignee):</strong> <code>${team.primary_oncall_ldap}</code> (${team.primary_oncall_name}) &nbsp;|&nbsp;
                         <strong>Tech Lead:</strong> <code>${team.tl_ldap}</code> (${team.tl_name}) &nbsp;|&nbsp;
                         <strong>Alias:</strong> <code>${team.email}</code>

@@ -127,7 +127,7 @@
             <span class="syntax-label"><i class="material-icons" style="font-size: 14px;">manage_search</i> Query Syntax:</span>
             <span class="syntax-chip"><code>status:&lt;open|assigned|triaged|blocked|fixed&gt;</code></span>
             <span class="syntax-chip"><code>priority:&lt;p0|p1|p2|p3&gt;</code></span>
-            <span class="syntax-chip"><code>component:&lt;iam|payments|privacy|infra|gateway&gt;</code></span>
+            <span class="syntax-chip"><code>component:"&lt;iam|payments|privacy|infra|gateway&gt;"</code></span>
             <span class="syntax-chip"><code>&lt;AND | OR | NOT | ( )&gt;</code></span>
             <span class="syntax-chip"><code>"&lt;exact phrase&gt;"</code></span>
         </div>
@@ -172,7 +172,8 @@
             if (token.includes(':')) {
                 const parts = token.split(':');
                 const k = parts[0].toLowerCase();
-                const v = parts.slice(1).join(':').replace(/^"|"$/g, '').toLowerCase();
+                const rawV = parts.slice(1).join(':').trim();
+                const v = rawV.replace(/^"|"$/g, '').toLowerCase();
 
                 if (k === 'status' || k === 'state') {
                     if (v === 'open') return !['fixed', 'verified', 'closed'].includes(status);
@@ -193,6 +194,9 @@
                     if (!s.startsWith('S')) s = 'S' + s;
                     return severity === s;
                 } else if (k === 'component' || k === 'comp') {
+                    if (!(rawV.startsWith('"') && rawV.endsWith('"') && rawV.length > 2)) {
+                        return false;
+                    }
                     if (v === 'iam') return component.includes('iam') || component.includes('identity') || component.includes('access management');
                     if (v === 'infra') return component.includes('infra') || component.includes('infrastructure') || component.includes('docker') || component.includes('container');
                     if (v === 'payments') return component.includes('payment') || component.includes('billing') || component.includes('financial');
@@ -228,15 +232,15 @@
                     else if (['OR', '||', '|'].includes(opUpper)) rawTokens.push({ type: 'OP', val: 'OR' });
                     else if (['NOT', '!'].includes(opUpper)) rawTokens.push({ type: 'OP', val: 'NOT' });
                 } else if (kv) {
-                    rawTokens.push({ type: 'LITERAL', val: kv });
+                    rawTokens.push({ type: 'KV', val: kv });
                 } else if (phrase) {
-                    rawTokens.push({ type: 'LITERAL', val: phrase.slice(1, -1) });
+                    rawTokens.push({ type: 'QUOTED_STRING', val: phrase.slice(1, -1) });
                 } else if (word) {
                     const wUpper = word.toUpperCase();
                     if (['AND', 'OR', 'NOT'].includes(wUpper)) {
                         rawTokens.push({ type: 'OP', val: wUpper });
                     } else {
-                        rawTokens.push({ type: 'LITERAL', val: word });
+                        rawTokens.push({ type: 'UNQUOTED_WORD', val: word });
                     }
                 }
             }
@@ -249,8 +253,8 @@
                 if (i > 0) {
                     const prev = rawTokens[i - 1];
                     const curr = rawTokens[i];
-                    const prevIsVal = (prev.type === 'LITERAL' || (prev.type === 'PAREN' && prev.val === ')'));
-                    const currIsVal = (curr.type === 'LITERAL' || (curr.type === 'PAREN' && curr.val === '(') || (curr.type === 'OP' && curr.val === 'NOT'));
+                    const prevIsVal = (prev.type === 'KV' || prev.type === 'QUOTED_STRING' || prev.type === 'UNQUOTED_WORD' || (prev.type === 'PAREN' && prev.val === ')'));
+                    const currIsVal = (curr.type === 'KV' || curr.type === 'QUOTED_STRING' || curr.type === 'UNQUOTED_WORD' || (curr.type === 'PAREN' && curr.val === '(') || (curr.type === 'OP' && curr.val === 'NOT'));
                     if (prevIsVal && currIsVal) {
                         tokens.push({ type: 'OP', val: 'AND' });
                     }
@@ -264,7 +268,7 @@
             const opStack = [];
 
             for (const t of tokens) {
-                if (t.type === 'LITERAL') {
+                if (t.type === 'KV' || t.type === 'QUOTED_STRING' || t.type === 'UNQUOTED_WORD') {
                     outputQueue.push(t);
                 } else if (t.type === 'OP') {
                     while (opStack.length > 0 && opStack[opStack.length - 1].type === 'OP' &&
@@ -294,8 +298,13 @@
             // Evaluate RPN
             const evalStack = [];
             for (const item of outputQueue) {
-                if (item.type === 'LITERAL') {
+                if (item.type === 'KV') {
                     evalStack.push(matchRowAtomic(row, item.val));
+                } else if (item.type === 'QUOTED_STRING') {
+                    const searchBlob = (row.dataset.search || (row.textContent + ' ' + (row.dataset.id || ''))).toLowerCase();
+                    evalStack.push(searchBlob.includes(item.val.toLowerCase()));
+                } else if (item.type === 'UNQUOTED_WORD') {
+                    evalStack.push(false);
                 } else if (item.type === 'OP') {
                     if (item.val === 'NOT') {
                         const v = evalStack.length > 0 ? evalStack.pop() : false;

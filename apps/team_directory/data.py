@@ -9,6 +9,7 @@ TEAMS = [
         "id": "customer-account-platform",
         "name": "Customer Account & Data Services Platform",
         "tag": "CUSTOMER-DATA",
+        "broad_component": "privacy",
         "department": "Core User & Account Infrastructure",
         "email": "customer-data-eng@company.com",
         "chat_channel": "#customer-data-oncall",
@@ -86,6 +87,7 @@ TEAMS = [
         "id": "privacy-governance-data",
         "name": "Data Privacy & Compliance Governance",
         "tag": "PRIVACY-GOV",
+        "broad_component": "privacy",
         "department": "Information Security & Privacy",
         "email": "privacy-compliance@company.com",
         "chat_channel": "#privacy-eng",
@@ -152,6 +154,7 @@ TEAMS = [
         "id": "iam-auth-security",
         "name": "Identity & Access Management (IAM)",
         "tag": "SEC-IAM",
+        "broad_component": "iam",
         "department": "Information Security & Privacy",
         "email": "iam-security-triage@company.com",
         "chat_channel": "#iam-auth-oncall",
@@ -229,6 +232,7 @@ TEAMS = [
         "id": "gateway-traffic-mesh",
         "name": "API Gateway & Edge Infrastructure",
         "tag": "GATEWAY-MESH",
+        "broad_component": "gateway",
         "department": "Network & Edge Infrastructure",
         "email": "api-gateway-core@company.com",
         "chat_channel": "#api-gateway-oncall",
@@ -293,6 +297,7 @@ TEAMS = [
         "id": "payments-billing-platform",
         "name": "Payments & Billing Platform",
         "tag": "FIN-PAYMENTS",
+        "broad_component": "payments",
         "department": "Financial Engineering & Commerce",
         "email": "payments-core@company.com",
         "chat_channel": "#payments-eng-oncall",
@@ -361,6 +366,7 @@ TEAMS = [
         "id": "cloud-infra-sre",
         "name": "Cloud Infrastructure & Container Security (SRE)",
         "tag": "INFRA-SRE",
+        "broad_component": "infra",
         "department": "Site Reliability Engineering",
         "email": "cloud-infra-sre@company.com",
         "chat_channel": "#cloud-infra-ops",
@@ -441,13 +447,14 @@ def get_team_by_id(team_id: str):
 def search_teams(query: str):
   if not query:
     return TEAMS
-  q = query.lower().strip()
+  q = query.lower().strip().replace("component:", "")
   results = []
   for team in TEAMS:
     match = False
     if (
         q in team["name"].lower()
         or q in team["tag"].lower()
+        or q in team.get("broad_component", "").lower()
         or q in team["department"].lower()
         or q in team["description"].lower()
         or q in team["email"].lower()

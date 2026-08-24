@@ -43,13 +43,16 @@ def render_team_cards_html(teams: list) -> str:
     ])
 
     card = f"""
-    <div class="team-card" data-id="{html.escape(t['id'])}" data-department="{html.escape(t['department'])}">
+    <div class="team-card" data-id="{html.escape(t['id'])}" data-department="{html.escape(t['department'])}" data-component="{html.escape(t.get('broad_component', ''))}">
         <div class="card-top">
             <div class="card-title-group">
                 <h3>{html.escape(t['name'])}</h3>
                 <div class="department-label">{html.escape(t['department'])}</div>
             </div>
-            <span class="tag-badge">{html.escape(t['tag'])}</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <span class="tag-badge" style="background-color: #f1f3f4; color: #1a73e8; font-family: monospace; font-size: 11px;">component:&quot;{html.escape(t.get('broad_component', ''))}&quot;</span>
+                <span class="tag-badge">{html.escape(t['tag'])}</span>
+            </div>
         </div>
         <div class="card-body">
             <p class="description-text">{html.escape(t['description'])}</p>
@@ -74,8 +77,9 @@ def render_team_cards_html(teams: list) -> str:
             </div>
 
             <div>
-                <div class="section-subheading">Owned Issue Tracker Components</div>
+                <div class="section-subheading">Broad Component ID &amp; Owned Issue Tracker Components</div>
                 <div class="chips-container">
+                    <span class="code-chip" style="background-color: #e8f0fe; color: #1a73e8; font-weight: 700; border-color: #d2e3fc;"><i class="material-icons" style="font-size: 12px; vertical-align: middle; margin-right: 2px;">filter_alt</i>component:&quot;{html.escape(t.get('broad_component', ''))}&quot;</span>
                     {components_html}
                 </div>
             </div>
@@ -154,6 +158,8 @@ def resolve_ownership_json(path_or_endpoint: str):
         "matched": True,
         "query": path_or_endpoint,
         "team": matched_team,
+        "broad_component": matched_team.get("broad_component", ""),
+        "broad_component_filter": f'component:"{matched_team.get("broad_component", "")}"',
         "suggested_assignee_ldap": matched_team["primary_oncall_ldap"],
         "suggested_assignee_name": matched_team["primary_oncall_name"],
         "tech_lead_ldap": matched_team["tl_ldap"],
