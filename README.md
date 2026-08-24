@@ -28,8 +28,6 @@ To run the application suite locally, you must have Docker and Docker Compose in
    docker compose down
    ```
 
----
-
 ## Section 2: Hotlist Overview
 
 Issue Tracker provides two main hotlists accessible via the top navigation:
@@ -68,7 +66,6 @@ Contains the full repository of vulnerabilities, incidents, and bugs across ente
 - `component:"<name>"` (e.g. `component:"payments"`, `component:"iam"`, `component:"privacy"`)
 - Substring keyword terms (e.g. `webhook`, `PII`, `JWT`, `SSN`, `CORS`, `Docker`)
 
----
 
 ## Section 3: Objectives & Tasks
 
@@ -84,11 +81,10 @@ As a Security Triage Engineer, your evaluation consists of three core tasks:
 
 3. **Task 3:**
    - Navigate to the **Vulnerability Inventory & Backlog (`hotlist:7920155`)**.
-   - Complete the **5 Hotlist Querying Challenges** detailed in **Section 4**.
+   - Complete the **4 Hotlist Querying Challenges** detailed in **Section 4**.
 
 > **Important:** Review [TRIAGE_GUIDELINES.md](TRIAGE_GUIDELINES.md) for operational standards regarding bug assignments, ownership routing, reporter communications, follow-up pings, SLO tracking, and query syntax.
 
----
 
 ## Section 4: Hotlist Querying Challenge
 
