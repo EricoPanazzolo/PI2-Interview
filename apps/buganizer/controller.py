@@ -2096,6 +2096,16 @@ def get_filtered_issues(hotlist_id: str = None, query_str: str = ""):
   return matched
 
 
+def render_nav_counts(html_content: str) -> str:
+  """Fills the hotlist issue counts shown in the top navigation."""
+  html_content = html_content.replace(
+      "{{queue_count}}", str(len(HOTLISTS["5829104"]["issues"]))
+  )
+  return html_content.replace(
+      "{{backlog_count}}", str(len(HOTLISTS["7920155"]["issues"]))
+  )
+
+
 def render_comments_html(comments: list) -> str:
   cards = []
   for c in comments:
@@ -2104,15 +2114,16 @@ def render_comments_html(comments: list) -> str:
     initials = "".join([part[0].upper() for part in raw_author.split()[:2]])
     if not initials:
       initials = raw_author[:2].upper()
+    tone = sum(ord(ch) for ch in raw_author) % 6 + 1
 
     card = f"""
-    <div class="bug-card comment-card">
+    <div class="card bug-card comment-card">
         <div class="card-header">
             <div class="reporter-info">
-                <div class="avatar">{initials}</div>
+                <div class="avatar tone-{tone}">{initials}</div>
                 <div class="reporter-details">
                     <span class="reporter-name"><strong>{html.escape(c['author'])}</strong></span>
-                    <span class="report-date">{c.get('number', '')} &bull; commented on {html.escape(c['date'])}</span>
+                    <span class="report-date"><span class="comment-number">{c.get('number', '')}</span> &bull; commented on {html.escape(c['date'])}</span>
                 </div>
             </div>
             <div class="card-actions">
@@ -2155,17 +2166,29 @@ def render_hotlist_html(hotlist_id: str = "5829104", query_str: str = "") -> str
   tab_backlog_class = "active" if hl["id"] == "7920155" else ""
   html_content = html_content.replace("{{tab_queue_active}}", tab_queue_class)
   html_content = html_content.replace("{{tab_backlog_active}}", tab_backlog_class)
+  html_content = render_nav_counts(html_content)
+  is_queue = hl["id"] == "5829104"
+  html_content = html_content.replace(
+      "{{hotlist_icon}}", "priority_high" if is_queue else "inventory_2"
+  )
+  html_content = html_content.replace(
+      "{{hotlist_tone}}", "tone-red" if is_queue else ""
+  )
 
   rows = []
   for issue in hotlist_issues:
     is_match = issue in matched_issues
     row_style = "" if is_match else 'style="display: none;"'
+    assignee_ldap = issue.get("assignee_ldap")
     assignee_display = (
-        f"@{issue['assignee_ldap']}"
-        if issue.get("assignee_ldap")
+        f"<span class='assignee-chip'><span class='mini-avatar'>{html.escape(assignee_ldap[:2])}</span>@{html.escape(assignee_ldap)}</span>"
+        if assignee_ldap
         else "<span class='assignee-chip unassigned'>Unassigned</span>"
     )
     endpoint = issue["description"].get("affected_endpoint", "")
+    endpoint_html = (
+        f'<code class="bug-row-endpoint">{endpoint}</code>' if endpoint else ""
+    )
     p_class = f"priority-{issue['priority'].lower()}"
     s_class = f"severity-{issue['severity'].lower()}"
     status_class = f"status-{issue['status'].lower()}"
@@ -2174,36 +2197,36 @@ def render_hotlist_html(hotlist_id: str = "5829104", query_str: str = "") -> str
 
     row = f"""
         <tr {row_style} data-id="{issue['id']}" data-status="{issue['status'].lower()}" data-assignee="{(issue.get('assignee_ldap') or 'unassigned').lower()}" data-priority="{issue['priority'].lower()}" data-severity="{issue['severity'].lower()}" data-component="{html.escape(issue.get('component', '').lower())}" data-type="{html.escape(issue.get('type', '').lower())}" data-hotlists="{html.escape(hotlists_str.lower())}" data-search="{html.escape(searchable_blob)}">
-            <td><input type="checkbox"></td>
+            <td class="col-check"><input type="checkbox"></td>
             <td>
                 <a href="/issues/{issue['id']}" class="bug-link">
-                    <i class="material-icons" style="font-size: 15px;">bug_report</i>
+                    <i class="material-icons">bug_report</i>
                     <span>{issue['bug_number']}</span>
                 </a>
             </td>
-            <td><span class="select-mock {p_class}" style="min-width: 45px; height: 24px; padding: 2px 6px;">{issue['priority']}</span></td>
-            <td><span class="select-mock {s_class}" style="min-width: 45px; height: 24px; padding: 2px 6px;">{issue['severity']}</span></td>
+            <td><span class="level-badge {p_class}">{issue['priority']}</span></td>
+            <td><span class="level-badge {s_class}">{issue['severity']}</span></td>
             <td><span class="status-chip {status_class}">{issue['status']}</span></td>
             <td>
                 <a href="/issues/{issue['id']}" class="bug-row-title">{html.escape(issue['title'])}</a>
-                <div style="margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span class="component-chip-inline"><i class="material-icons" style="font-size: 11px;">category</i> {html.escape(issue.get('component', 'Security'))}</span>
-                    <span class="bug-row-endpoint">{endpoint}</span>
+                <div class="bug-row-meta">
+                    <span class="component-chip-inline"><i class="material-icons">category</i> {html.escape(issue.get('component', 'Security'))}</span>
+                    {endpoint_html}
                 </div>
             </td>
-            <td><span class="assignee-chip">{assignee_display}</span></td>
-            <td style="color: #5f6368; font-size: 12px;">{issue['modified_date']}</td>
+            <td>{assignee_display}</td>
+            <td class="col-date">{issue['modified_date']}</td>
         </tr>
         """
     rows.append(row)
 
   no_results_style = "" if not matched_issues else 'style="display: none;"'
   no_results_row = f"""
-        <tr id="noResultsRow" {no_results_style}>
-            <td colspan="8" style="text-align: center; padding: 40px; color: #5f6368;">
-                <i class="material-icons" style="font-size: 36px; color: #9aa0a6; display: block; margin-bottom: 8px;">search_off</i>
-                <strong>No bugs found matching your query criteria.</strong><br>
-                <span style="font-size: 13px;">Try refining your search terms or clearing the filter query.</span>
+        <tr id="noResultsRow" class="empty-state" {no_results_style}>
+            <td colspan="8">
+                <i class="material-icons">search_off</i>
+                <strong>No bugs found matching your query criteria.</strong>
+                <span>Try refining your search terms or clearing the filter query.</span>
             </td>
         </tr>
   """
@@ -2227,9 +2250,21 @@ def render_issue_html(issue_id: str = "543338174") -> str:
   html_content = html_content.replace("{{bug_number}}", issue["bug_number"])
   html_content = html_content.replace("{{title}}", issue["title"])
   html_content = html_content.replace("{{type}}", html.escape(issue.get("type", "Vulnerability")))
+  html_content = html_content.replace(
+      "{{status_class}}", f"status-{issue['status'].lower()}"
+  )
   html_content = html_content.replace("{{status}}", issue["status"])
+  html_content = html_content.replace(
+      "{{priority_class}}", f"priority-{issue['priority'].lower()}"
+  )
   html_content = html_content.replace("{{priority}}", issue["priority"])
+  html_content = html_content.replace(
+      "{{severity_class}}", f"severity-{issue['severity'].lower()}"
+  )
   html_content = html_content.replace("{{severity}}", issue["severity"])
+  html_content = html_content.replace(
+      "{{comment_count}}", str(len(issue.get("comments", [])))
+  )
   html_content = html_content.replace(
       "{{assignee_ldap}}", issue.get("assignee_ldap", "")
   )
@@ -2279,6 +2314,22 @@ def render_issue_html(issue_id: str = "543338174") -> str:
   tab_618_class = "active-tab" if issue["id"] == "618294710" else ""
   html_content = html_content.replace("{{tab_543_class}}", tab_543_class)
   html_content = html_content.replace("{{tab_618_class}}", tab_618_class)
+
+  # Top nav & breadcrumb point at the hotlist this issue is triaged from
+  parent_id = (
+      "5829104" if issue["id"] in HOTLISTS["5829104"]["issues"] else "7920155"
+  )
+  html_content = html_content.replace("{{parent_hotlist_id}}", parent_id)
+  html_content = html_content.replace(
+      "{{parent_hotlist_name}}", html.escape(HOTLISTS[parent_id]["name"])
+  )
+  html_content = html_content.replace(
+      "{{nav_queue_active}}", "active" if parent_id == "5829104" else ""
+  )
+  html_content = html_content.replace(
+      "{{nav_backlog_active}}", "active" if parent_id == "7920155" else ""
+  )
+  html_content = render_nav_counts(html_content)
 
   return html_content
 

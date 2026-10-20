@@ -88,47 +88,61 @@ As a Security Triage Engineer, your evaluation consists of three core tasks:
 
 ## Section 4: Hotlist Querying Challenge
 
-Navigate to the **Enterprise Vulnerability Inventory & Backlog (`hotlist:7920155`)** at `http://localhost:8081/hotlists/7920155`. Execute the following **five search queries** to analyze the enterprise backlog and formulate your triage observations:
+All four challenges run against the **Enterprise Vulnerability Inventory & Backlog (`hotlist:7920155`)** at `http://localhost:8081/hotlists/7920155`. Write each query in the hotlist search bar, then put your results and observations in your triage report.
 
+> **Before you start:** See [TRIAGE_GUIDELINES.md § 6](TRIAGE_GUIDELINES.md) for the full query syntax: field filters, double-quoted component and keyword values, boolean operators, and precedence.
 
-**Challenge 1: Unassigned Active Triage Queue**
+### Overview
 
-- **Scenario:** As the triage lead, you need to identify all active, unresolved security findings across the organization that currently lack an assigned engineer and require immediate ownership routing.
-- **Candidate Tasks in Report:**
-  
-  1. Record the exact query used and list all matching bug numbers (`b/...`).
-
-  2. Cross-reference each unassigned bug with the **Team & Ownership Directory** (`http://localhost:8082`) to specify the rightful primary on-call engineer and team to which each should be assigned.
-
-**Challenge 2: Critical & High-Priority Active Incidents**
-
-- **Scenario:** Perform an analysis of all critical (`P0`) and high-priority (`P1`) vulnerabilities currently in an active state to track remediation progress against SLO deadlines.
-- **Candidate Tasks in Report:**
-  
-  1. Record the exact query used and list all matching bug numbers (`b/...`).
-
-  2. Identify which active bug is marked as `Blocked` and explain what external dependency or resource is blocking the engineer from finishing the fix.
-
-  3. Identify the bugs that are approaching their SLO deadlines, and execute the necessary actions for the SLO to be fulfilled.
-
-**Challenge 3: Identity, Authentication & Session Security Audit**
-
-- **Scenario:** The Identity & Access Management (IAM) team is conducting a component-wide security review. Identify all vulnerabilities affecting authentication for the IAM component.
-
-- **Candidate Tasks in Report:**
-
-  1. List all matching bugs, their current status, and assignees.
-
-  2. Confirm whether the historical P0 SSO session fixation vulnerability has been successfully verified and closed.
-
-**Challenge 4: Data Privacy Governance & Regulatory Compliance**
-
-- **Scenario:** Ahead of an upcoming regulatory audit, compile an inventory of all issues (open and already closed) concerning client Personally Identifiable Information (PII) leakage OR GDPR compliance workflows (`GDPR` / `PII`) across both `Data Privacy Governance` and `Privacy & Data Protection` components, while excluding the `Audit Logging` sub-component.
-
-- **Candidate Tasks in Report:**
-  
-  1. Record the exact query used and list all matching bugs.
+| # | Challenge | Focus | Uses Team Directory |
+|---|---|---|---|
+| 1 | Unassigned Active Triage Queue | Active, unresolved findings with no assigned engineer | Yes |
+| 2 | Critical & High-Priority Active Incidents | Active `P0` / `P1` findings, blockers, and SLO deadlines | No |
+| 3 | Identity, Authentication & Session Security Audit | Authentication vulnerabilities in the IAM component | No |
+| 4 | Data Privacy Governance & Regulatory Compliance | `PII` / `GDPR` issues across the privacy components | No |
 
 ---
 
+### Challenge 1: Unassigned Active Triage Queue
 
+**Scenario:** As the triage lead, you need to identify all active, unresolved security findings across the organization that currently lack an assigned engineer and require immediate ownership routing.
+
+**Report deliverables:**
+
+1. Record the exact query used and list all matching bug numbers (`b/...`).
+2. Cross-reference each unassigned bug with the **Team & Ownership Directory** (`http://localhost:8082`) to specify the rightful Primary On-Call engineer and team to which each should be assigned.
+
+---
+
+### Challenge 2: Critical & High-Priority Active Incidents
+
+**Scenario:** Analyze all critical (`P0`) and high-priority (`P1`) vulnerabilities currently in an active state to track remediation progress against SLO deadlines.
+
+**Report deliverables:**
+
+1. Record the exact query used and list all matching bug numbers (`b/...`).
+2. Identify which active bug is marked as `Blocked` and explain what external dependency or resource is blocking the engineer from finishing the fix.
+3. Identify the bugs that are approaching their SLO deadlines, and execute the necessary actions for the SLO to be fulfilled.
+
+---
+
+### Challenge 3: Identity, Authentication & Session Security Audit
+
+**Scenario:** The Identity & Access Management (IAM) team is conducting a component-wide security review. Identify all vulnerabilities affecting authentication for the IAM component.
+
+**Report deliverables:**
+
+1. Record the exact query used and list all matching bugs, their current status, and assignees.
+2. Confirm whether the historical P0 SSO session fixation vulnerability has been successfully verified and closed.
+
+---
+
+### Challenge 4: Data Privacy Governance & Regulatory Compliance
+
+**Scenario:** Ahead of an upcoming regulatory audit, compile an inventory of all issues (open and already closed) concerning client Personally Identifiable Information (PII) leakage OR GDPR compliance workflows (`GDPR` / `PII`) across both `Data Privacy Governance` and `Privacy & Data Protection` components, while excluding the `Audit Logging` sub-component.
+
+**Report deliverables:**
+
+1. Record the exact query used and list all matching bugs.
+
+---

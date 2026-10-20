@@ -1,27 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Enterprise Team &amp; Ownership Directory</title>
-    <link rel="stylesheet" href="/static/team_directory.css">
-    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto@5.0.8/index.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@5.0.8/index.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Team &amp; Ownership Directory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/material-icons@1.13.12/iconfont/material-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/team_directory.css">
 </head>
 <body>
     <!-- Header -->
     <header class="directory-header">
         <div class="header-brand">
-            <i class="material-icons">corporate_fare</i>
-            <span>Enterprise Team &amp; Service Ownership Directory</span>
+            <span class="brand-mark"><i class="material-icons">corporate_fare</i></span>
+            <span>Team &amp; Service Ownership Directory</span>
         </div>
         <nav class="header-nav">
-            <a href="http://localhost:8081" target="_blank" class="header-link"><i class="material-icons" style="font-size: 16px; vertical-align: middle;">format_list_bulleted</i> Buganizer Hotlist Queue (8081)</a>
+            <a href="http://localhost:8081/hotlists/5829104" target="_blank" class="header-link" title="Open the Issue Tracker triage queue">
+                <i class="material-icons">bug_report</i>
+                <span>Issue Tracker Hotlists (8081)</span>
+                <i class="material-icons ext-icon">open_in_new</i>
+            </a>
         </nav>
     </header>
 
     <!-- Hero Section with Search & Lookup Tool -->
-    <div class="hero-section">
+    <section class="hero-section">
         <h1 class="hero-title">Service &amp; Codebase Ownership Registry</h1>
         <p class="hero-subtitle">
             Query engineering teams, Tech Lead (TL) LDAPs, On-Call rosters, and code depot paths. Use this directory during security bug triage to assign incoming reports to the correct engineering owner.
@@ -29,44 +35,56 @@
 
         <div class="search-controls">
             <!-- Keyword Search -->
-            <div class="search-input-wrapper">
-                <i class="material-icons search-icon">search</i>
-                <input type="text" id="teamSearchInput" class="search-input" placeholder="Search by team name, LDAP, component, or keyword...">
+            <div class="control-card">
+                <label class="control-label" for="teamSearchInput">
+                    <i class="material-icons">groups</i> Search teams
+                </label>
+                <div class="search-input-wrapper">
+                    <i class="material-icons search-icon">search</i>
+                    <input type="text" id="teamSearchInput" class="search-input" placeholder="Search by team name, LDAP, component, or keyword..." autocomplete="off">
+                </div>
             </div>
 
             <!-- Component Resolver -->
-            <div class="lookup-box">
-                <i class="material-icons" style="color: #1a73e8; font-size: 20px;">explore</i>
-                <input type="text" id="pathLookupInput" placeholder="Resolve path (e.g. /api/..., //depot/...)...">
-                <button type="button" id="pathLookupBtn" class="lookup-btn">
-                    <i class="material-icons" style="font-size: 16px;">search</i> Resolve
-                </button>
+            <div class="control-card">
+                <label class="control-label" for="pathLookupInput">
+                    <i class="material-icons">explore</i> Resolve ownership
+                </label>
+                <div class="lookup-box">
+                    <input type="text" id="pathLookupInput" placeholder="Resolve path (e.g. /api/..., //depot/...)..." autocomplete="off" spellcheck="false">
+                    <button type="button" id="pathLookupBtn" class="lookup-btn">
+                        <i class="material-icons">search</i> Resolve
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Filter Pills -->
-        <div class="filter-pills">
-            <button class="pill active" data-filter="all">All Teams</button>
-            <button class="pill" data-filter="Core User & Account Infrastructure">Customer &amp; Account Infrastructure</button>
-            <button class="pill" data-filter="Information Security & Privacy">Security &amp; Privacy</button>
-            <button class="pill" data-filter="Network & Edge Infrastructure">Network &amp; Gateway</button>
-            <button class="pill" data-filter="Financial Engineering & Commerce">Payments &amp; Commerce</button>
-            <button class="pill" data-filter="Site Reliability Engineering">SRE &amp; Infrastructure</button>
+        <div class="filter-bar">
+            <div class="filter-pills">
+                <button class="pill active" data-filter="all">All Teams</button>
+                <button class="pill" data-filter="Core User & Account Infrastructure">Customer &amp; Account Infrastructure</button>
+                <button class="pill" data-filter="Information Security & Privacy">Security &amp; Privacy</button>
+                <button class="pill" data-filter="Network & Edge Infrastructure">Network &amp; Gateway</button>
+                <button class="pill" data-filter="Financial Engineering & Commerce">Payments &amp; Commerce</button>
+                <button class="pill" data-filter="Site Reliability Engineering">SRE &amp; Infrastructure</button>
+            </div>
+            <span class="results-count">Showing <strong id="teamsVisibleCount">{{team_count}}</strong> of {{team_count}} teams</span>
         </div>
-    </div>
+    </section>
 
     <!-- Main Container -->
     <main class="directory-container">
         <!-- Ownership Resolver Banner -->
         <div id="lookupBanner" class="lookup-result-banner">
             <div class="banner-content">
-                <i class="material-icons banner-icon">verified_user</i>
+                <i class="material-icons banner-icon" id="bannerIcon">verified_user</i>
                 <div class="banner-text">
                     <h4 id="bannerTitle">Ownership Resolved</h4>
-                    <p id="bannerDetails"></p>
+                    <div id="bannerDetails"></div>
                 </div>
             </div>
-            <button type="button" id="dismissBannerBtn" style="background: none; border: none; cursor: pointer; color: #5f6368;">
+            <button type="button" id="dismissBannerBtn" class="banner-close" title="Dismiss">
                 <i class="material-icons">close</i>
             </button>
         </div>
@@ -74,6 +92,12 @@
         <!-- Teams Grid -->
         <div class="teams-grid" id="teamsGrid">
             {{team_cards_html}}
+        </div>
+
+        <div class="empty-teams" id="noTeams">
+            <i class="material-icons">search_off</i>
+            <strong>No teams match your search.</strong>
+            Try a different keyword or select another department.
         </div>
     </main>
 
@@ -87,11 +111,15 @@
         const bannerTitle = document.getElementById('bannerTitle');
         const bannerDetails = document.getElementById('bannerDetails');
         const dismissBannerBtn = document.getElementById('dismissBannerBtn');
+        const bannerIcon = document.getElementById('bannerIcon');
+        const teamsVisibleCount = document.getElementById('teamsVisibleCount');
+        const noTeams = document.getElementById('noTeams');
 
         let currentDepartment = 'all';
 
         function filterTeams() {
             const query = searchInput.value.toLowerCase().trim();
+            let visible = 0;
 
             teamCards.forEach(card => {
                 const cardText = card.textContent.toLowerCase();
@@ -102,10 +130,14 @@
 
                 if (matchesQuery && matchesDept) {
                     card.style.display = 'flex';
+                    visible++;
                 } else {
                     card.style.display = 'none';
                 }
             });
+
+            teamsVisibleCount.textContent = visible;
+            noTeams.style.display = visible === 0 ? 'block' : 'none';
         }
 
         searchInput.addEventListener('input', filterTeams);
@@ -132,11 +164,15 @@
                     const team = data.team;
                     bannerTitle.textContent = `Target "${target}" belongs to: ${team.name} (${team.tag})`;
                     bannerDetails.innerHTML = `
-                        <strong>Broad Component:</strong> <code>component:&quot;${team.broad_component || ''}&quot;</code> &nbsp;|&nbsp;
-                        <strong>Primary On-Call (Assignee):</strong> <code>${team.primary_oncall_ldap}</code> (${team.primary_oncall_name}) &nbsp;|&nbsp;
-                        <strong>Tech Lead:</strong> <code>${team.tl_ldap}</code> (${team.tl_name}) &nbsp;|&nbsp;
-                        <strong>Alias:</strong> <code>${team.email}</code>
+                        <div class="resolve-grid">
+                            <div class="resolve-field"><span class="resolve-label">Broad Component</span><span class="resolve-value"><code>component:&quot;${team.broad_component || ''}&quot;</code></span></div>
+                            <div class="resolve-field"><span class="resolve-label">Primary On-Call (Assignee)</span><span class="resolve-value"><code>${team.primary_oncall_ldap}</code> (${team.primary_oncall_name})</span></div>
+                            <div class="resolve-field"><span class="resolve-label">Tech Lead</span><span class="resolve-value"><code>${team.tl_ldap}</code> (${team.tl_name})</span></div>
+                            <div class="resolve-field"><span class="resolve-label">Alias</span><span class="resolve-value"><code>${team.email}</code></span></div>
+                        </div>
                     `;
+                    bannerIcon.textContent = 'verified_user';
+                    lookupBanner.classList.remove('not-found');
                     lookupBanner.classList.add('show');
 
                     // Highlight card
@@ -149,8 +185,9 @@
                     });
                 } else {
                     bannerTitle.textContent = `No direct match found for "${target}"`;
-                    bannerDetails.textContent = 'Please browse the directory below or try searching by depot directory prefix.';
-                    lookupBanner.classList.add('show');
+                    bannerDetails.innerHTML = '<p>Please browse the directory below or try searching by depot directory prefix.</p>';
+                    bannerIcon.textContent = 'help_outline';
+                    lookupBanner.classList.add('not-found', 'show');
                 }
             } catch (err) {
                 console.error('Error resolving ownership:', err);

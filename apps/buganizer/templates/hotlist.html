@@ -1,156 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Buganizer - Hotlist: {{hotlist_name}}</title>
-    <link rel="stylesheet" href="/static/buganizer.css">
-    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto@5.0.8/index.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@5.0.8/index.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{hotlist_name}} · Issue Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/material-icons@1.13.12/iconfont/material-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/buganizer.css">
 </head>
 <body>
-    <!-- Top Header -->
-    <header class="tracker-header">
-        <div class="header-left">
-            <button class="menu-btn" title="Main menu"><i class="material-icons">menu</i></button>
-            <div class="logo">
-                <span class="tracker-text">Issue Tracker</span>
-            </div>
-            
-            <div class="header-issue-crumb">
-                <span class="hotlist-badge"><i class="material-icons" style="font-size: 13px;">label</i> Hotlist: {{hotlist_id}}</span>
-            </div>
-        </div>
+    <!-- Top App Bar -->
+    <header class="app-bar">
+        <a href="/hotlists/5829104" class="brand">
+            <span class="brand-mark"><i class="material-icons">bug_report</i></span>
+            <span class="brand-name">Issue Tracker</span>
+        </a>
 
-        <div class="header-right">
-            <a href="http://localhost:8082" target="_blank" class="nav-tool-link" title="Open Team Directory to find service owners">
-                <i class="material-icons" style="font-size: 16px;">corporate_fare</i> Team Directory (8082)
+        <nav class="app-nav" aria-label="Hotlists">
+            <a href="/hotlists/5829104" class="app-nav-link {{tab_queue_active}}" title="Active Incident Triage Queue (hotlist:5829104)">
+                <i class="material-icons">priority_high</i>
+                <span class="nav-label">Triage Queue</span>
+                <span class="nav-count">{{queue_count}}</span>
+            </a>
+            <a href="/hotlists/7920155" class="app-nav-link {{tab_backlog_active}}" title="Enterprise Vulnerability Inventory &amp; Backlog (hotlist:7920155)">
+                <i class="material-icons">inventory_2</i>
+                <span class="nav-label">Inventory &amp; Backlog</span>
+                <span class="nav-count">{{backlog_count}}</span>
+            </a>
+        </nav>
+
+        <div class="app-bar-right">
+            <a href="http://localhost:8082" target="_blank" class="tool-link" title="Open Team Directory to find service owners">
+                <i class="material-icons">corporate_fare</i>
+                <span>Team &amp; Ownership Directory</span>
+                <i class="material-icons ext-icon">open_in_new</i>
             </a>
             <div class="user-avatar" title="Logged in as security-triage@company.com">SE</div>
         </div>
     </header>
 
-    <!-- Prominent Hotlist Navigation Header -->
-    <div class="hotlist-nav-header">
-        <div class="hotlist-nav-container">
-            <div class="hotlist-nav-tabs">
-                <a href="/hotlists/5829104" class="hotlist-nav-card {{tab_queue_active}}">
-                    <div class="nav-card-icon queue-icon">
-                        <i class="material-icons">priority_high</i>
-                    </div>
-                    <div class="nav-card-content">
-                        <div class="nav-card-title-row">
-                            <span class="nav-card-title">Incident Triage Queue</span>
-                            <span class="nav-card-badge queue-badge">2 Active P1 Findings</span>
-                        </div>
-                        <div class="nav-card-desc">Active critical findings requiring immediate triage, routing, and SLO follow-up</div>
-                    </div>
-                </a>
-
-                <a href="/hotlists/7920155" class="hotlist-nav-card {{tab_backlog_active}}">
-                    <div class="nav-card-icon backlog-icon">
-                        <i class="material-icons">inventory_2</i>
-                    </div>
-                    <div class="nav-card-content">
-                        <div class="nav-card-title-row">
-                            <span class="nav-card-title">Vulnerability Inventory &amp; Backlog</span>
-                            <span class="nav-card-badge backlog-badge">14 Enterprise Bugs</span>
-                        </div>
-                        <div class="nav-card-desc">Full inventory across all teams for querying and filtering specific vulnerability classes</div>
-                    </div>
-                </a>
+    <main class="page">
+        <!-- Hotlist Header -->
+        <section class="page-header">
+            <div class="breadcrumbs">
+                <a href="/hotlists">Hotlists</a>
+                <i class="material-icons">chevron_right</i>
+                <span class="current">hotlist:{{hotlist_id}}</span>
             </div>
-        </div>
-    </div>
-
-    <!-- Hotlist Hero Banner -->
-    <div class="hotlist-hero">
-        <div class="hotlist-title-row">
-            <div class="hotlist-icon-box">
-                <i class="material-icons">label_important</i>
-            </div>
-            <div>
-                <div class="hotlist-breadcrumbs">
-                    <a href="/hotlists">Hotlists</a> &gt; <span>{{hotlist_id}}</span>
+            <div class="page-title-row">
+                <div class="page-icon {{hotlist_tone}}">
+                    <i class="material-icons">{{hotlist_icon}}</i>
                 </div>
-                <h1 class="hotlist-title">{{hotlist_name}}</h1>
-                <p class="hotlist-desc">{{hotlist_desc}}</p>
+                <div>
+                    <h1 class="page-title">{{hotlist_name}}</h1>
+                    <p class="page-desc">{{hotlist_desc}}</p>
+                </div>
             </div>
-        </div>
 
-        <div class="hotlist-meta-bar">
-            <div class="meta-item">
-                <span class="meta-label">Owner:</span>
-                <span class="meta-val">{{hotlist_owner}}</span>
+            <div class="stat-row">
+                <div class="stat">
+                    <span class="stat-label">Owner</span>
+                    <span class="stat-value" title="{{hotlist_owner}}">{{hotlist_owner}}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total in hotlist</span>
+                    <span class="stat-value big">{{total_issues}}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Matching filter</span>
+                    <span class="stat-value big" id="matchingCountBadge">{{matching_count}}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Status</span>
+                    <span class="stat-value"><span class="status-chip status-active">Active Triage</span></span>
+                </div>
             </div>
-            <div class="meta-item">
-                <span class="meta-label">Total in Hotlist:</span>
-                <span class="meta-val"><strong>{{total_issues}}</strong></span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Matching Filter:</span>
-                <span class="meta-val"><strong id="matchingCountBadge">{{matching_count}}</strong></span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Status:</span>
-                <span class="status-chip active">Active Triage</span>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Main Hotlist Container -->
-    <div class="hotlist-table-container">
-        <!-- Prominent Filter Search Toolbar -->
-        <div class="table-toolbar prominent-toolbar">
-            <div class="toolbar-left">
-                <div class="table-search prominent-table-search">
+        <!-- Issues Panel -->
+        <section class="card table-panel">
+            <div class="table-toolbar">
+                <div class="table-search">
                     <i class="material-icons search-input-icon">search</i>
-                    <input type="text" id="hotlistFilterInput" placeholder="Search bug" value="{{current_query}}" autofocus autocomplete="off">
+                    <input type="text" id="hotlistFilterInput" placeholder="Search bugs" value="{{current_query}}" autofocus autocomplete="off" spellcheck="false">
                     <button type="button" id="tableClearBtn" class="search-clear-icon" title="Clear filter" style="display: {{clear_btn_display}};">
                         <i class="material-icons" style="font-size: 16px;">close</i>
                     </button>
                 </div>
-            </div>
-            <div class="toolbar-right">
                 <span class="table-results-counter" id="tableResultsCounter">Showing <strong>{{matching_count}}</strong> of {{total_issues}} bugs</span>
-                <button class="action-btn" onclick="clearAllFilters()">
+                <button class="btn" onclick="clearAllFilters()">
                     <i class="material-icons">restart_alt</i> Clear Filter
                 </button>
-                <button class="action-btn" onclick="window.location.reload()">
-                    <i class="material-icons">refresh</i> Refresh
+                <button class="btn ghost" onclick="window.location.reload()" title="Refresh">
+                    <i class="material-icons">refresh</i>
                 </button>
             </div>
-        </div>
 
-        <!-- Search Syntax Helper Bar -->
-        <div class="search-syntax-help">
-            <span class="syntax-label"><i class="material-icons" style="font-size: 14px;">manage_search</i> Query Syntax:</span>
-            <span class="syntax-chip"><code>status:&lt;open|assigned|triaged|blocked|fixed&gt;</code></span>
-            <span class="syntax-chip"><code>priority:&lt;p0|p1|p2|p3&gt;</code></span>
-            <span class="syntax-chip"><code>component:"&lt;iam|payments|privacy|infra|gateway&gt;"</code></span>
-            <span class="syntax-chip"><code>&lt;AND | OR | NOT | ( )&gt;</code></span>
-            <span class="syntax-chip"><code>"&lt;exact phrase&gt;"</code></span>
-        </div>
+            <!-- Search Syntax Helper -->
+            <div class="search-syntax-help">
+                <span class="syntax-label"><i class="material-icons">manage_search</i> Query syntax</span>
+                <span class="syntax-chip"><code>status:&lt;open|assigned|triaged|blocked|fixed&gt;</code></span>
+                <span class="syntax-chip"><code>assignee:&lt;ldap|none&gt;</code></span>
+                <span class="syntax-chip"><code>priority:&lt;p0|p1|p2|p3&gt;</code></span>
+                <span class="syntax-chip"><code>component:"&lt;iam|payments|privacy|infra|gateway&gt;"</code></span>
+                <span class="syntax-chip"><code>&lt;AND | OR | NOT | ( )&gt;</code></span>
+                <span class="syntax-chip"><code>"&lt;exact phrase&gt;"</code></span>
+            </div>
 
-        <!-- Issues Table -->
-        <table class="hotlist-table" id="hotlistTable">
-            <thead>
-                <tr>
-                    <th style="width: 40px;"><input type="checkbox" disabled></th>
-                    <th style="width: 130px;">Issue ID</th>
-                    <th style="width: 80px;">Priority</th>
-                    <th style="width: 80px;">Severity</th>
-                    <th style="width: 110px;">Status</th>
-                    <th>Title &amp; Summary</th>
-                    <th style="width: 160px;">Assignee</th>
-                    <th style="width: 160px;">Last Modified</th>
-                </tr>
-            </thead>
-            <tbody id="issuesTableBody">
-                {{issues_table_rows}}
-            </tbody>
-        </table>
-    </div>
+            <!-- Issues Table -->
+            <div class="table-scroll">
+                <table class="hotlist-table" id="hotlistTable">
+                    <thead>
+                        <tr>
+                            <th class="col-check"><input type="checkbox" disabled></th>
+                            <th>Issue ID</th>
+                            <th>Priority</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Title &amp; Summary</th>
+                            <th>Assignee</th>
+                            <th>Last Modified</th>
+                        </tr>
+                    </thead>
+                    <tbody id="issuesTableBody">
+                        {{issues_table_rows}}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
     <script>
         const filterInput = document.getElementById('hotlistFilterInput');

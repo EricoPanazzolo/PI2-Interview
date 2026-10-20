@@ -11,6 +11,10 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(APP_DIR, "templates")
 
 
+def _initials(name: str) -> str:
+  return "".join(part[0].upper() for part in name.split()[:2])
+
+
 def render_team_cards_html(teams: list) -> str:
   """Builds the HTML cards for the team directory view."""
   cards = []
@@ -38,48 +42,51 @@ def render_team_cards_html(teams: list) -> str:
 
     # Build components list
     components_html = "".join([
-        f'<span class="component-chip"><i class="material-icons" style="font-size: 13px; vertical-align: middle; margin-right: 3px;">category</i>{html.escape(c)}</span>'
+        f'<span class="component-chip"><i class="material-icons">category</i>{html.escape(c)}</span>'
         for c in t.get("owned_components", [])
     ])
 
+    # Build key personnel rows
+    people = [
+        ("tl", "Tech Lead (TL)", t["tl_ldap"], t["tl_name"]),
+        ("oncall", "Primary On-Call", t["primary_oncall_ldap"], t["primary_oncall_name"]),
+        ("secondary", "Secondary On-Call", t["secondary_oncall_ldap"], t["secondary_oncall_name"]),
+    ]
+    people_html = "".join([
+        f"""
+                    <li class="person-row {role}">
+                        <span class="person-avatar">{html.escape(_initials(name))}</span>
+                        <div class="person-main">
+                            <span class="ldap-link">@{html.escape(ldap)}</span>
+                            <span class="person-name">{html.escape(name)}</span>
+                        </div>
+                        <span class="role-badge {role}">{label}</span>
+                    </li>"""
+        for role, label, ldap, name in people
+    ])
+
     card = f"""
-    <div class="team-card" data-id="{html.escape(t['id'])}" data-department="{html.escape(t['department'])}" data-component="{html.escape(t.get('broad_component', ''))}">
+    <article class="team-card" data-id="{html.escape(t['id'])}" data-department="{html.escape(t['department'])}" data-component="{html.escape(t.get('broad_component', ''))}">
         <div class="card-top">
             <div class="card-title-group">
                 <h3>{html.escape(t['name'])}</h3>
                 <div class="department-label">{html.escape(t['department'])}</div>
             </div>
-            <div style="display: flex; gap: 6px; align-items: center;">
-                <span class="tag-badge" style="background-color: #f1f3f4; color: #1a73e8; font-family: monospace; font-size: 11px;">component:&quot;{html.escape(t.get('broad_component', ''))}&quot;</span>
-                <span class="tag-badge">{html.escape(t['tag'])}</span>
-            </div>
+            <span class="tag-badge">{html.escape(t['tag'])}</span>
         </div>
         <div class="card-body">
             <p class="description-text">{html.escape(t['description'])}</p>
 
             <div>
                 <div class="section-subheading">Key Personnel &amp; On-Call Rotation</div>
-                <div class="person-row">
-                    <span class="role-badge tl">Tech Lead (TL)</span>
-                    <span class="ldap-link">@{html.escape(t['tl_ldap'])}</span>
-                    <span class="person-name">({html.escape(t['tl_name'])})</span>
-                </div>
-                <div class="person-row">
-                    <span class="role-badge oncall">Primary On-Call</span>
-                    <span class="ldap-link">@{html.escape(t['primary_oncall_ldap'])}</span>
-                    <span class="person-name">({html.escape(t['primary_oncall_name'])})</span>
-                </div>
-                <div class="person-row">
-                    <span class="role-badge secondary">Secondary On-Call</span>
-                    <span class="ldap-link">@{html.escape(t['secondary_oncall_ldap'])}</span>
-                    <span class="person-name">({html.escape(t['secondary_oncall_name'])})</span>
-                </div>
+                <ul class="people-list">{people_html}
+                </ul>
             </div>
 
             <div>
                 <div class="section-subheading">Broad Component ID &amp; Owned Issue Tracker Components</div>
                 <div class="chips-container">
-                    <span class="code-chip" style="background-color: #e8f0fe; color: #1a73e8; font-weight: 700; border-color: #d2e3fc;"><i class="material-icons" style="font-size: 12px; vertical-align: middle; margin-right: 2px;">filter_alt</i>component:&quot;{html.escape(t.get('broad_component', ''))}&quot;</span>
+                    <span class="filter-chip"><i class="material-icons">filter_alt</i>component:&quot;{html.escape(t.get('broad_component', ''))}&quot;</span>
                     {components_html}
                 </div>
             </div>
@@ -106,18 +113,19 @@ def render_team_cards_html(teams: list) -> str:
             </div>
 
             <div class="triage-tip">
-                <strong>Triage Routing:</strong> {html.escape(t['triage_guidelines'])}
+                <i class="material-icons">lightbulb</i>
+                <div><strong>Triage Routing:</strong> {html.escape(t['triage_guidelines'])}</div>
             </div>
         </div>
         <div class="card-footer">
             <span class="contact-info">
-                <i class="material-icons" style="font-size: 14px; vertical-align: middle;">email</i> {html.escape(t['email'])}
+                <i class="material-icons">email</i> {html.escape(t['email'])}
             </span>
-            <span>
-                <i class="material-icons" style="font-size: 14px; vertical-align: middle;">chat</i> {html.escape(t['chat_channel'])}
+            <span class="contact-info">
+                <i class="material-icons">chat</i> {html.escape(t['chat_channel'])}
             </span>
         </div>
-    </div>
+    </article>
     """
     cards.append(card)
 
@@ -132,6 +140,7 @@ def render_team_directory_html() -> str:
   teams = get_all_teams()
   cards_html = render_team_cards_html(teams)
   html_content = html_content.replace("{{team_cards_html}}", cards_html)
+  html_content = html_content.replace("{{team_count}}", str(len(teams)))
   return html_content
 
 
